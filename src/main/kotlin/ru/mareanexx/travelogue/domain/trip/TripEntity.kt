@@ -5,7 +5,6 @@ import org.springframework.data.relational.core.mapping.Table
 import ru.mareanexx.travelogue.domain.trip.types.TripTimeStatus
 import ru.mareanexx.travelogue.domain.trip.types.TripVisibilityType
 import java.time.LocalDateTime
-import java.util.UUID
 
 @Table(name = "trip")
 data class TripEntity(
@@ -20,5 +19,5 @@ data class TripEntity(
     val type: TripVisibilityType,
     val status: TripTimeStatus,
     val coverPhoto: String, // relative path to photo
-    val userUuid: UUID // FK на user
+    val profileId: Int // FK на user's profile
 )
