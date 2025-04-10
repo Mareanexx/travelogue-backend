@@ -12,6 +12,9 @@ import ru.mareanexx.travelogue.domain.authentication.userDetails.CustomUserDetai
 import ru.mareanexx.travelogue.domain.user.UserEntity
 import ru.mareanexx.travelogue.domain.user.UserRepository
 import ru.mareanexx.travelogue.domain.user.types.UserRole
+import ru.mareanexx.travelogue.domain.user.types.UserStatus
+import ru.mareanexx.travelogue.support.exceptions.BlockedUserException
+import ru.mareanexx.travelogue.support.exceptions.EmailAlreadyExistsException
 import java.util.*
 
 @Service
@@ -24,8 +27,13 @@ class AuthService(
     /**
      * Регистрация пользователя.
      * @param request DTO для запроса на регистрацию (email + пароль)
+     * @throws EmailAlreadyExistsException если пользователь с таким email уже существует
      */
     fun register(request: RegisterRequest): AuthResponse {
+        if (userRepository.findByEmail(request.email) != null) {
+            throw EmailAlreadyExistsException("Пользователь с таким email уже существует")
+        }
+
         val user = UserEntity(
             email = request.email,
             passwordHash = passwordEncoder.encode(request.password),
@@ -41,6 +49,7 @@ class AuthService(
      * Аутентификация пользователя.
      * @param request DTO для запроса на авторизацию (email + пароль)
      * @throws UsernameNotFoundException если пользователь не найден (или email неверен)
+     * @throws BlockedUserException если пользователь пытающийся авторизоваться заблокирован
      * @throws BadCredentialsException если неверно введен пароль
      * @return userUuid и token
      */
@@ -48,8 +57,13 @@ class AuthService(
         val userDetails = userDetailsService.loadUserByUsername(request.email) as CustomUserDetails
 
         if (!passwordEncoder.matches(request.password, userDetails.password)) {
-            throw BadCredentialsException("Password is incorrect")
+            throw BadCredentialsException("Неверно указан пароль '${request.password}'")
         }
+
+        if (userRepository.findById(userDetails.userUuid!!).get().status == UserStatus.Blocked) {
+            throw BlockedUserException("Пользователь заблокирован, запрещена аутентификация")
+        }
+
         val token = jwtService.generateToken(userDetails)
         return AuthResponse(userUuid = userDetails.userUuid!!, token = token)
     }

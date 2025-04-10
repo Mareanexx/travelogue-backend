@@ -13,5 +13,5 @@ data class UserEntity(
     val role: UserRole,
     val email: String,
     val passwordHash: String,
-    val status: UserStatus = UserStatus.Active
+    var status: UserStatus = UserStatus.Active
 )
