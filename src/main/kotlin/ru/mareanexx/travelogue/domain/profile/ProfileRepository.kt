@@ -1,5 +1,6 @@
 package ru.mareanexx.travelogue.domain.profile
 
+import org.springframework.data.jdbc.repository.query.Modifying
 import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
@@ -9,6 +10,16 @@ import ru.mareanexx.travelogue.domain.profile.dto.stats.UpdatedProfileStatsRespo
 import java.util.*
 
 interface ProfileRepository: CrudRepository<ProfileEntity, Int> {
+    @Modifying
+    @Query("""
+        UPDATE profile SET fcm_token = :token
+        WHERE id = :profileId
+    """)
+    fun updateTokenByProfileId(
+        @Param("profileId") profileId: Int,
+        @Param("token") token: String?
+    )
+
     @Query("""
         SELECT id, username, full_name, bio, avatar, cover_photo,
         followers_number, following_number, trips_number

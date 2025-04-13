@@ -34,6 +34,7 @@ CREATE TABLE profile (
      following_number INT DEFAULT 0 NOT NULL,
      trips_number INT DEFAULT 0 NOT NULL,
      user_uuid UUID NOT NULL,
+     fcm_token TEXT NULL,
      CONSTRAINT fk_user FOREIGN KEY (user_uuid) REFERENCES "user"(uuid) ON DELETE CASCADE
 );
 

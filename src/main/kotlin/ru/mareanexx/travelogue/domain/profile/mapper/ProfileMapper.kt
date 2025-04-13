@@ -12,7 +12,8 @@ fun NewProfileRequest.mapToProfile(
     bio = bio,
     coverPhoto = coverPath,
     avatar = avatarPath,
-    userUUID = userUUID
+    userUUID = userUUID,
+    fcmToken = fcmToken
 )
 
 fun ProfileEntity.copyChangedProperties(

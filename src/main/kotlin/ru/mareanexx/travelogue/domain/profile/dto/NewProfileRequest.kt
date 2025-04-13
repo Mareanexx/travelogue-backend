@@ -6,5 +6,6 @@ data class NewProfileRequest(
     val username: String,
     val fullName: String,
     val bio: String,
-    val userUUID: UUID // FK на user
+    val userUUID: UUID, // FK на user
+    val fcmToken: String?
 )

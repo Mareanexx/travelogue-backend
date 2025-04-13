@@ -7,6 +7,7 @@ import ru.mareanexx.travelogue.domain.profile.dto.InspiringProfileResponse
 import ru.mareanexx.travelogue.domain.profile.dto.NewProfileRequest
 import ru.mareanexx.travelogue.domain.profile.dto.ProfileDTO
 import ru.mareanexx.travelogue.domain.profile.dto.UpdateProfileRequest
+import ru.mareanexx.travelogue.domain.profile.dto.fcm.UpdateTokenRequest
 import ru.mareanexx.travelogue.domain.profile.dto.stats.UpdatedProfileStatsResponse
 import ru.mareanexx.travelogue.domain.profile.mapper.copyChangedProperties
 import ru.mareanexx.travelogue.domain.profile.mapper.mapToProfile
@@ -84,6 +85,18 @@ class ProfileService(
         val updatedProfile = profile.copyChangedProperties(updProfile, newAvatarPath, newCoverPath)
 
         return profileRepository.save(updatedProfile)
+    }
+
+    /**
+     * Обновить FCM токен пользователя.
+     * @param newToken DTO для запроса на обновление токена по profileId
+     * @throws WrongIdException если нет профиля по переданному id
+     */
+    fun updateToken(newToken: UpdateTokenRequest) {
+        profileRepository.findById(newToken.profileId)
+            .orElseThrow { WrongIdException("Не удалось найти профиль по id") }
+
+        profileRepository.updateTokenByProfileId(newToken.profileId, newToken.fcmToken)
     }
 
     /**

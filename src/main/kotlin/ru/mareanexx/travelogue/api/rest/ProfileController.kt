@@ -11,10 +11,12 @@ import ru.mareanexx.travelogue.domain.profile.ProfileService
 import ru.mareanexx.travelogue.domain.profile.dto.InspiringProfileResponse
 import ru.mareanexx.travelogue.domain.profile.dto.NewProfileRequest
 import ru.mareanexx.travelogue.domain.profile.dto.UpdateProfileRequest
+import ru.mareanexx.travelogue.domain.profile.dto.fcm.UpdateTokenRequest
 import ru.mareanexx.travelogue.domain.profile.dto.stats.UpdatedProfileStatsResponse
 import ru.mareanexx.travelogue.domain.profile.dto.withTrips.AuthorProfileResponse
 import ru.mareanexx.travelogue.domain.profile.dto.withTrips.UserProfileResponse
 import ru.mareanexx.travelogue.domain.trip.TripService
+import ru.mareanexx.travelogue.support.exceptions.WrongIdException
 import java.util.*
 
 @RestController("customProfileController")
@@ -89,6 +91,19 @@ class ProfileController(
         } catch (e: Exception) {
             println(e.message)
             ResponseEntity.badRequest().body(null)
+        }
+    }
+
+    @PatchMapping("/token")
+    @PreAuthorize("hasRole('USER')")
+    fun updateFcmToken(@RequestBody newToken: UpdateTokenRequest): ResponseEntity<Map<String, String>> {
+        return try {
+            profileService.updateToken(newToken)
+            ResponseEntity.ok(mapOf("success" to "Successfully updated profile token"))
+        } catch (e: WrongIdException) {
+            ResponseEntity.badRequest().body(mapOf("error" to "Can't find profile by id"))
+        } catch (e: Exception) {
+            ResponseEntity.badRequest().body(mapOf("error" to "Can't update user token"))
         }
     }
 
