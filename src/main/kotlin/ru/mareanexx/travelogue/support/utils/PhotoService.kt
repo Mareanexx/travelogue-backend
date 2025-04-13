@@ -9,11 +9,14 @@ import java.util.*
 @Component
 class PhotoService {
     fun saveFile(file: MultipartFile, uploadDir: String, pathMiddle: String): String {
-        val dir = File(uploadDir)
+        val rootPath = Paths.get("").toAbsolutePath().toString()
+        val fullUploadDir = Paths.get(rootPath, uploadDir).toString()
+
+        val dir = File(fullUploadDir)
         if (!dir.exists()) dir.mkdirs()
 
         val fileName = UUID.randomUUID().toString() + "-" + file.originalFilename
-        val fullPath = Paths.get(uploadDir, fileName)
+        val fullPath = Paths.get(fullUploadDir, fileName)
         file.transferTo(fullPath.toFile())
 
         return "/uploads/${pathMiddle}/$fileName"
@@ -21,7 +24,9 @@ class PhotoService {
 
     fun deleteFileIfExists(relativePath: String) {
         try {
-            val file = File(".$relativePath")
+            val rootPath = Paths.get("").toAbsolutePath().toString()
+            val fullPath = Paths.get(rootPath, relativePath).toString()
+            val file = File(fullPath)
             if (file.exists()) {
                 file.delete()
             }
