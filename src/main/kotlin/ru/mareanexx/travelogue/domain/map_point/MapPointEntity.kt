@@ -7,7 +7,7 @@ import java.time.LocalDateTime
 @Table(name = "map_point")
 data class MapPointEntity(
     @Id
-    val id: Int,
+    val id: Int? = null,
     val longitude: Double,
     val latitude: Double,
     val name: String,
