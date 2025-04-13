@@ -7,9 +7,9 @@ import java.time.LocalDateTime
 @Table(name = "comment")
 data class CommentEntity(
     @Id
-    val id: Int,
+    val id: Int? = null,
     val text: String,
     val sendDate: LocalDateTime,
-    val profileId: Int, // FK на user's profile
+    val senderProfileId: Int, // FK на user's profile
     val mapPointId: Int // FK на map_point
 )
