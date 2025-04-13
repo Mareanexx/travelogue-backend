@@ -86,11 +86,11 @@ class MapPointController(
 
 
     @DeleteMapping("/{mapPointId}")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR')")
     fun deleteMapPoint(@PathVariable mapPointId: Int): ResponseEntity<String> {
         return try {
-            mapPointService.deleteMapPointById(mapPointId)
             pointPhotoService.deleteAllByMapPointId(mapPointId)
+            mapPointService.deleteMapPointById(mapPointId)
             ResponseEntity.ok("Successfully deleted map point")
         } catch (e: Exception) {
             println(e.message)

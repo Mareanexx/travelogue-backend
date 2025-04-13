@@ -1,5 +1,6 @@
 package ru.mareanexx.travelogue.domain.point_photo
 
+import org.springframework.data.jdbc.repository.query.Modifying
 import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
@@ -8,6 +9,11 @@ import ru.mareanexx.travelogue.domain.point_photo.dto.PointPhotoDTO
 
 @Repository
 interface PointPhotoRepository: CrudRepository<PointPhotoEntity, Int> {
+    @Modifying
+    @Query("""
+        DELETE FROM point_photo
+        WHERE map_point_id = :mapPointId
+    """)
     fun deleteAllByMapPointId(mapPointId: Int)
 
     @Query("""
