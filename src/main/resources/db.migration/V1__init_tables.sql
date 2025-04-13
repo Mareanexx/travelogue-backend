@@ -102,6 +102,14 @@ CREATE TABLE comment (
     CONSTRAINT fk_map_point_id FOREIGN KEY (map_point_id) REFERENCES map_point(id) ON DELETE CASCADE
 );
 
+CREATE TABLE likes (
+    profile_id INT NOT NULL,
+    map_point_id INT NOT NULL,
+    CONSTRAINT pk_likes PRIMARY KEY (profile_id, map_point_id),
+    CONSTRAINT fk_likes_profile FOREIGN KEY (profile_id) REFERENCES profile(id) ON DELETE CASCADE,
+    CONSTRAINT fk_likes_map_point FOREIGN KEY (map_point_id) REFERENCES map_point(id) ON DELETE CASCADE
+);
+
 
 -- ЗАПРОСЫ ДАЛЬШЕ ХЗ МБ НЕ РАБОТАЮТ
 INSERT INTO profile (username, full_name, bio, avatar, cover_photo, followers_number, following_number, trips_number, user_uuid)
