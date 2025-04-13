@@ -4,18 +4,18 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Table
 import ru.mareanexx.travelogue.domain.trip.types.TripTimeStatus
 import ru.mareanexx.travelogue.domain.trip.types.TripVisibilityType
-import java.time.LocalDateTime
+import java.time.LocalDate
 
 @Table(name = "trip")
 data class TripEntity(
     @Id
-    val id: Int,
+    val id: Int? = null,
     val name: String,
     val description: String,
-    val startDate: LocalDateTime,
-    val endDate: LocalDateTime?,
-    val stepsNumber: Int,
-    val daysNumber: Int,
+    val startDate: LocalDate,
+    val endDate: LocalDate? = null,
+    val stepsNumber: Int = 0,
+    val daysNumber: Int = 0,
     val type: TripVisibilityType,
     val status: TripTimeStatus,
     val coverPhoto: String, // relative path to photo

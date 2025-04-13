@@ -1,5 +1,8 @@
 package ru.mareanexx.travelogue.domain.trip.types
 
+import com.fasterxml.jackson.annotation.JsonProperty
+
 enum class TripVisibilityType {
-    Private, Public
+    @JsonProperty("Private") Private,
+    @JsonProperty("Public") Public
 }

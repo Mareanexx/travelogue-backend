@@ -1,5 +1,8 @@
 package ru.mareanexx.travelogue.domain.trip.types
 
+import com.fasterxml.jackson.annotation.JsonProperty
+
 enum class TripTimeStatus {
-    Current, Past
+    @JsonProperty("Current") Current,
+    @JsonProperty("Past") Past
 }
