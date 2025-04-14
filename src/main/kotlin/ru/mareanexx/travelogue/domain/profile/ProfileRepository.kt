@@ -57,7 +57,7 @@ interface ProfileRepository: CrudRepository<ProfileEntity, Int> {
 
 
     @Query("""
-        SELECT pr.id AS profileId, pr.fcm_token
+        SELECT pr.id, pr.fcm_token
         FROM profile pr
         JOIN follows f ON pr.id = f.follower_id
         WHERE f.following_id = :creatorId

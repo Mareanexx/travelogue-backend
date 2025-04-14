@@ -2,6 +2,7 @@ package ru.mareanexx.travelogue.domain.notifications
 
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
+import ru.mareanexx.travelogue.domain.notifications.dto.NotificationResponse
 import ru.mareanexx.travelogue.domain.notifications.dto.comment.NewCommentNotification
 import ru.mareanexx.travelogue.domain.notifications.dto.follows.NewFollowsNotification
 import ru.mareanexx.travelogue.domain.notifications.dto.likes.NewLikeNotification
@@ -9,6 +10,7 @@ import ru.mareanexx.travelogue.domain.notifications.dto.mappoint.NewMapPointNoti
 import ru.mareanexx.travelogue.domain.notifications.dto.trip.NewTripNotification
 import ru.mareanexx.travelogue.domain.notifications.mapper.mapToEntity
 import ru.mareanexx.travelogue.domain.profile.ProfileRepository
+import ru.mareanexx.travelogue.support.exceptions.WrongIdException
 import ru.mareanexx.travelogue.support.firebase.FirebaseMessagingService
 import ru.mareanexx.travelogue.support.firebase.messages.*
 import java.time.LocalDateTime
@@ -31,9 +33,9 @@ class NotificationsService(
 
             val senderProfile = profileRepository.findById(comment.senderId).getOrNull() ?: return
 
-            if (recipient.profileId == senderProfile.id!!) return
+            if (recipient.id == senderProfile.id!!) return
 
-            notificationsRepository.save(comment.mapToEntity(recipient.profileId, recipient.tripId))
+            notificationsRepository.save(comment.mapToEntity(recipient.id, recipient.tripId))
 
             // если нет токена, то уведомление не отправится!
             recipient.fcmToken?.let { token ->
@@ -65,9 +67,9 @@ class NotificationsService(
 
             val senderProfile = profileRepository.findById(newLike.senderId).getOrNull() ?: return
 
-            if (recipient.profileId == senderProfile.id!!) return
+            if (recipient.id == senderProfile.id!!) return
 
-            notificationsRepository.save(newLike.mapToEntity(recipient.profileId, recipient.tripId))
+            notificationsRepository.save(newLike.mapToEntity(recipient.id, recipient.tripId))
 
             // если нет токена, то уведомление не отправится!
             recipient.fcmToken?.let { token ->
@@ -128,7 +130,7 @@ class NotificationsService(
 
             val entities = followers.map {
                 NotificationsEntity(
-                    recipientId = it.profileId,
+                    recipientId = it.id,
                     senderId = newTrip.creatorId,
                     type = newTrip.type,
                     relatedTripId = newTrip.tripId,
@@ -151,6 +153,7 @@ class NotificationsService(
                     null
                 }
             }
+            if (notificationMessages.isEmpty()) return
 
             fcmService.sendAllNewTripNotifications(notificationMessages)
 
@@ -174,7 +177,7 @@ class NotificationsService(
 
             val entities = followers.map {
                 NotificationsEntity(
-                    recipientId = it.profileId,
+                    recipientId = it.id,
                     senderId = creatorProfile.id,
                     type = newMapPoint.type,
                     relatedTripId = newMapPoint.tripId,
@@ -199,11 +202,24 @@ class NotificationsService(
                 }
             }
 
+            if (notificationMessages.isEmpty()) return
+
             fcmService.sendAllNewMapPointNotifications(notificationMessages)
 
         } catch (e: Exception) {
             println("Ошибка при уведомлении фолловеров о новом map point: ${e.message}")
             e.printStackTrace()
         }
+    }
+
+    /**
+     * Получить все уведомления, где пользователь является получателем (recipientId)
+     * @throws WrongIdException если не найден профиль по предоставленному id
+     */
+    fun getAllByRecipientId(recipientId: Int): List<NotificationResponse> {
+        profileRepository.findById(recipientId)
+            .orElseThrow { WrongIdException("Не удалось найти profile по его id") }
+
+        return notificationsRepository.findAllByRecipientId(recipientId)
     }
 }

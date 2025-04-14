@@ -111,6 +111,23 @@ CREATE TABLE likes (
     CONSTRAINT fk_likes_map_point FOREIGN KEY (map_point_id) REFERENCES map_point(id) ON DELETE CASCADE
 );
 
+CREATE TABLE notifications (
+    id SERIAL PRIMARY KEY,
+    recipient_id INT NOT NULL,
+    sender_id INT NOT NULL,
+    type VARCHAR(20) NOT NULL CHECK (type IN ('Like', 'Comment', 'Follow', 'NewTrip', 'NewMapPoint')),
+    related_trip_id INT NULL,
+    related_point_id INT NULL,
+    related_comment_id INT NULL,
+    is_read BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    CONSTRAINT fk_notif_recipient_profile FOREIGN KEY (recipient_id) REFERENCES profile(id) ON DELETE CASCADE,
+    CONSTRAINT fk_notif_sender_profile FOREIGN KEY (sender_id) REFERENCES profile(id) ON DELETE CASCADE,
+    CONSTRAINT fk_notif_trip FOREIGN KEY (related_trip_id) REFERENCES trip(id) ON DELETE CASCADE,
+    CONSTRAINT fk_notif_map_point FOREIGN KEY (related_point_id) REFERENCES map_point(id) ON DELETE CASCADE,
+    CONSTRAINT fk_notif_comment FOREIGN KEY (related_comment_id) REFERENCES comment(id) ON DELETE CASCADE
+);
+
 
 -- ЗАПРОСЫ ДАЛЬШЕ ХЗ МБ НЕ РАБОТАЮТ
 INSERT INTO profile (username, full_name, bio, avatar, cover_photo, followers_number, following_number, trips_number, user_uuid)
