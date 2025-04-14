@@ -8,6 +8,9 @@ build/
 ## uploads dir with photos
 uploads/
 
+## Firebase accountKey
+src/main/resources/firebase/
+
 ### STS ###
 .apt_generated
 .classpath

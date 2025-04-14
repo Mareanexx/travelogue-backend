@@ -42,6 +42,9 @@ dependencies {
 	compileOnly("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok")
 
+	// firebase SDK
+	implementation("com.google.firebase:firebase-admin:9.2.0")
+
 	// flyway
 	implementation("org.flywaydb:flyway-core")
 	implementation("org.flywaydb:flyway-database-postgresql")

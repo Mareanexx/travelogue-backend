@@ -8,17 +8,29 @@ import ru.mareanexx.travelogue.domain.comment.CommentService
 import ru.mareanexx.travelogue.domain.comment.dto.CommentResponse
 import ru.mareanexx.travelogue.domain.comment.dto.NewCommentRequest
 import ru.mareanexx.travelogue.domain.comment.dto.NewCommentResponse
+import ru.mareanexx.travelogue.domain.notifications.NotificationsService
+import ru.mareanexx.travelogue.domain.notifications.dto.comment.NewCommentNotification
 
 @RestController
 @RequestMapping("/api/v1/comments")
 class CommentController(
-    private val commentService: CommentService
+    private val commentService: CommentService,
+    private val notificationsService: NotificationsService
 ) {
     @PostMapping
     @PreAuthorize("hasRole('USER')")
     fun addNew(@RequestBody newCommentRequest: NewCommentRequest): ResponseEntity<NewCommentResponse?> {
         return try {
             val response = commentService.addNewComment(newCommentRequest)
+
+            notificationsService.addNewCommentNotification(
+                NewCommentNotification(
+                    commentId = response.id,
+                    mapPointId = newCommentRequest.mapPointId,
+                    senderId = newCommentRequest.senderProfileId
+                )
+            )
+
             ResponseEntity.ok(response)
         } catch (e: Exception) {
             ResponseEntity.badRequest().body(null)

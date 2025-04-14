@@ -6,11 +6,14 @@ import org.springframework.web.bind.annotation.*
 import ru.mareanexx.travelogue.domain.follows.FollowsService
 import ru.mareanexx.travelogue.domain.follows.dto.FollowUserRequest
 import ru.mareanexx.travelogue.domain.follows.dto.FollowersAndFollowingsResponse
+import ru.mareanexx.travelogue.domain.notifications.NotificationsService
+import ru.mareanexx.travelogue.domain.notifications.dto.follows.NewFollowsNotification
 
 @RestController
 @RequestMapping("/api/v1/follows")
 class FollowsController(
-    private val followsService: FollowsService
+    private val followsService: FollowsService,
+    private val notificationsService: NotificationsService
 ) {
     @GetMapping("/{profileId}")
     @PreAuthorize("hasRole('USER')")
@@ -29,6 +32,14 @@ class FollowsController(
     fun followUser(@RequestBody followUserRequest: FollowUserRequest): ResponseEntity<String> {
         return try {
             followsService.followNewProfile(followUserRequest)
+
+            notificationsService.addNewFollowerNotification(
+                NewFollowsNotification(
+                    followerId = followUserRequest.followerId,
+                    followingId = followUserRequest.followingId
+                )
+            )
+
             ResponseEntity.ok("Successfully followed new profile")
         } catch (e: Exception) {
             println(e.message)

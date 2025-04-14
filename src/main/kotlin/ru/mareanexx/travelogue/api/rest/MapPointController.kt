@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import ru.mareanexx.travelogue.domain.map_point.MapPointService
 import ru.mareanexx.travelogue.domain.map_point.dto.*
+import ru.mareanexx.travelogue.domain.notifications.NotificationsService
+import ru.mareanexx.travelogue.domain.notifications.dto.mappoint.NewMapPointNotification
 import ru.mareanexx.travelogue.domain.point_photo.PointPhotoService
 import ru.mareanexx.travelogue.domain.point_photo.dto.PointPhotoDTO
 
@@ -14,7 +16,8 @@ import ru.mareanexx.travelogue.domain.point_photo.dto.PointPhotoDTO
 @RequestMapping("/api/v1/map-points")
 class MapPointController(
     private val mapPointService: MapPointService,
-    private val pointPhotoService: PointPhotoService
+    private val pointPhotoService: PointPhotoService,
+    private val notificationsService: NotificationsService
 ) {
     @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     @PreAuthorize("hasRole('USER')")
@@ -28,6 +31,13 @@ class MapPointController(
 
             val response = UserMapPointResponse(
                 userMapPoint, photosList
+            )
+
+            notificationsService.notifyAllFollowersAboutNewMapPoint(
+                NewMapPointNotification(
+                    tripId = data.tripId,
+                    mapPointId = userMapPoint.id
+                )
             )
 
             ResponseEntity.ok(response)

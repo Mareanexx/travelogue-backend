@@ -4,6 +4,7 @@ import org.springframework.data.jdbc.repository.query.Modifying
 import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
+import ru.mareanexx.travelogue.domain.notifications.dto.trip.FollowerWithFcm
 import ru.mareanexx.travelogue.domain.profile.dto.InspiringProfileResponse
 import ru.mareanexx.travelogue.domain.profile.dto.ProfileDTO
 import ru.mareanexx.travelogue.domain.profile.dto.stats.UpdatedProfileStatsResponse
@@ -53,4 +54,20 @@ interface ProfileRepository: CrudRepository<ProfileEntity, Int> {
         WHERE id = :authorId
     """)
     fun findStatsByProfileId(@Param("authorId") authorId: Int): UpdatedProfileStatsResponse
+
+
+    @Query("""
+        SELECT pr.id AS profileId, pr.fcm_token
+        FROM profile pr
+        JOIN follows f ON pr.id = f.follower_id
+        WHERE f.following_id = :creatorId
+    """)
+    fun findFollowersByProfileId(@Param("creatorId") creatorId: Int): List<FollowerWithFcm>
+
+    @Query("""
+        SELECT * FROM profile
+        JOIN trip ON profile.id = trip.profile_id
+        WHERE trip.id = :tripId
+    """)
+    fun findByTripId(@Param("tripId") tripId: Int): ProfileEntity?
 }

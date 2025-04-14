@@ -5,6 +5,8 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
+import ru.mareanexx.travelogue.domain.notifications.NotificationsService
+import ru.mareanexx.travelogue.domain.notifications.dto.trip.NewTripNotification
 import ru.mareanexx.travelogue.domain.tags.TagService
 import ru.mareanexx.travelogue.domain.trip.TripService
 import ru.mareanexx.travelogue.domain.trip.dto.*
@@ -13,7 +15,8 @@ import ru.mareanexx.travelogue.domain.trip.dto.*
 @RequestMapping("/api/v1/trips")
 class TripController(
     private val tripService: TripService,
-    private val tagService: TagService
+    private val tagService: TagService,
+    private val notificationsService: NotificationsService
 ) {
     @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     @PreAuthorize("hasRole('USER')")
@@ -27,6 +30,14 @@ class TripController(
                 tagService.addNew(it, newTrip.id)
                 newTrip.tagList = it
             }
+
+            notificationsService.notifyAllFollowersAboutNewTrip(
+                NewTripNotification(
+                    creatorId = data.profileId,
+                    tripId = newTrip.id
+                )
+            )
+
             ResponseEntity.ok(newTrip)
         } catch(e: Exception) {
             println(e.message)

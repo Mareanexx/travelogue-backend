@@ -6,11 +6,14 @@ import org.springframework.web.bind.annotation.*
 import ru.mareanexx.travelogue.domain.likes.LikesService
 import ru.mareanexx.travelogue.domain.likes.dto.LikeRequest
 import ru.mareanexx.travelogue.domain.likes.type.LikeStatusCode.*
+import ru.mareanexx.travelogue.domain.notifications.NotificationsService
+import ru.mareanexx.travelogue.domain.notifications.dto.likes.NewLikeNotification
 
 @RestController
 @RequestMapping("/api/v1/likes")
 class LikesController(
-    private val likesService: LikesService
+    private val likesService: LikesService,
+    private val notificationsService: NotificationsService
 ) {
     @PostMapping
     @PreAuthorize("hasRole('USER')")
@@ -22,6 +25,14 @@ class LikesController(
                 ERROR -> mapOf("error" to "Something went wrong, can't add new like")
                 UNKNOWN -> mapOf("error" to "Unknown error on server")
             }
+
+            notificationsService.addNewLikeNotification(
+                NewLikeNotification(
+                    mapPointId = likeRequest.mapPointId,
+                    senderId = likeRequest.profileId,
+                )
+            )
+
             ResponseEntity.ok(response)
         } catch (e: Exception) {
             ResponseEntity.badRequest().body(mapOf("error" to "Can't add new like"))
