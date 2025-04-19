@@ -5,15 +5,14 @@ import ru.mareanexx.travelogue.domain.profile.dto.NewProfileRequest
 import ru.mareanexx.travelogue.domain.profile.dto.UpdateProfileRequest
 
 fun NewProfileRequest.mapToProfile(
-    coverPath: String?, avatarPath: String?
+    avatarPath: String?
 ) = ProfileEntity(
     username = username,
     fullName = fullName,
     bio = bio,
-    coverPhoto = coverPath,
+    coverPhoto = null,
     avatar = avatarPath,
-    userUUID = userUUID,
-    fcmToken = fcmToken
+    userUUID = userUUID
 )
 
 fun ProfileEntity.copyChangedProperties(

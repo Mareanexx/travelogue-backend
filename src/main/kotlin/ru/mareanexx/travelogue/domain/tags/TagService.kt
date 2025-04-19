@@ -2,8 +2,10 @@ package ru.mareanexx.travelogue.domain.tags
 
 import org.springframework.stereotype.Service
 import ru.mareanexx.travelogue.domain.tags.dto.NewTag
+import ru.mareanexx.travelogue.domain.tags.dto.TagResponse
 import ru.mareanexx.travelogue.domain.tags.dto.TopTag
 import ru.mareanexx.travelogue.domain.tags.mapper.mapToTags
+import ru.mareanexx.travelogue.domain.tags.mapper.toDto
 
 @Service
 class TagService(
@@ -14,10 +16,8 @@ class TagService(
      * @param listTags список всех тегов
      * @param tripId id путешествия к которому прикрепляются теги
      */
-    fun addNew(listTags: List<NewTag>, tripId: Int) {
-        listTags.forEach { tag ->
-            tagsRepository.save(tag.mapToTags(tripId))
-        }
+    fun addNew(listTags: List<NewTag>, tripId: Int): List<TagResponse> {
+        return tagsRepository.saveAll(listTags.map { it.mapToTags(tripId) }).map { it.toDto() }
     }
 
     /**
@@ -25,10 +25,9 @@ class TagService(
      * @param listTags список измененных тегов
      * @param tripId id путешествия к которому прикреплены теги
      */
-    fun editTags(listTags: List<NewTag>, tripId: Int) {
+    fun editTags(listTags: List<NewTag>, tripId: Int): List<TagResponse> {
         tagsRepository.deleteAllByTripId(tripId)
-
-        listTags.forEach { tag -> tagsRepository.save(TagsEntity(tripId = tripId, name = tag.name)) }
+        return addNew(listTags, tripId)
     }
 
     /**

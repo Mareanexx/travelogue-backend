@@ -46,17 +46,15 @@ class ProfileService(
      * Добавить новый профиль. При регистрации.
      * Для пользователя.
      * @param avatar картинка аватарки пользователя
-     * @param cover картинка шапки профиля пользователя
      * @param mainData DTO нового профиля пользователя
      */
-    fun createNewProfile(avatar: MultipartFile?, cover: MultipartFile?, mainData: NewProfileRequest): ProfileEntity {
+    fun createNewProfile(avatar: MultipartFile?, mainData: NewProfileRequest): ProfileEntity {
         userRepository.findById(mainData.userUUID)
             .orElseThrow { WrongIdException("Нет пользователя с таким uuid") }
 
         val avatarPath = avatar?.let { photoService.saveFile(it, avatarsPath, AVATAR_PATH_MIDDLE) }
-        val coverPath = cover?.let { photoService.saveFile(it, coversPath, COVER_PATH_MIDDLE) }
 
-        val newProfile = mainData.mapToProfile(coverPath, avatarPath)
+        val newProfile = mainData.mapToProfile(avatarPath)
         return profileRepository.save(newProfile)
     }
 

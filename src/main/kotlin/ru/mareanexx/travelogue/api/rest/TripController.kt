@@ -27,8 +27,8 @@ class TripController(
         return try {
             val newTrip = tripService.createNewTrip(data, coverPhoto)
             data.tagList?.let {
-                tagService.addNew(it, newTrip.id)
-                newTrip.tagList = it
+                val tags = tagService.addNew(it, newTrip.id)
+                newTrip.tagList = tags
             }
 
             notificationsService.notifyAllFollowersAboutNewTrip(
@@ -66,8 +66,8 @@ class TripController(
         return try {
             val editedTrip = tripService.editTrip(data, coverPhoto)
             data.tagList?.let {
-                tagService.editTags(it, editedTrip.id)
-                editedTrip.tagList = it
+                val tags = tagService.editTags(it, editedTrip.id)
+                editedTrip.tagList = tags
             }
             ResponseEntity.ok(editedTrip)
         } catch(e: Exception) {

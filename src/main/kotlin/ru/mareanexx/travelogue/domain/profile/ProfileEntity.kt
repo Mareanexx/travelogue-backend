@@ -17,5 +17,5 @@ data class ProfileEntity(
     val followingNumber: Int = 0,
     val tripsNumber: Int = 0,
     val userUUID: UUID, // FK на user
-    val fcmToken: String?
+    val fcmToken: String? = null
 )

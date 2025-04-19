@@ -4,5 +4,6 @@ import java.util.*
 
 data class AuthResponse(
     val userUuid: UUID,
+    val email: String,
     val token: String
 )

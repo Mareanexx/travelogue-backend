@@ -3,6 +3,7 @@ package ru.mareanexx.travelogue.domain.user
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import ru.mareanexx.travelogue.domain.user.dto.NewUserRequest
+import ru.mareanexx.travelogue.domain.user.mapper.changeProps
 import ru.mareanexx.travelogue.domain.user.types.UserRole
 import ru.mareanexx.travelogue.domain.user.types.UserStatus
 import ru.mareanexx.travelogue.support.exceptions.EmailAlreadyExistsException
@@ -15,6 +16,33 @@ class UserService(
     private val userRepository: UserRepository,
     private val passwordEncoder: PasswordEncoder
 ) {
+    fun deleteOwnAccount(uuid: UUID) {
+        val user = userRepository.findById(uuid)
+            .orElseThrow { WrongIdException("User with this UUID not found") }
+
+        if (user.role != UserRole.User) {
+            throw NoPermissionException("Only USER can delete themselves")
+        }
+
+        userRepository.deleteById(uuid)
+    }
+
+    fun updateEmail(uuid: UUID, newEmail: String) {
+        val user = userRepository.findById(uuid)
+            .orElseThrow { WrongIdException("User with this UUID not found") }
+
+        if (user.role != UserRole.User) {
+            throw NoPermissionException("Only USER can update their own email")
+        }
+
+        if (userRepository.findByEmail(newEmail) != null) {
+            throw EmailAlreadyExistsException("Email already taken")
+        }
+
+        val newEmailUser = user.changeProps(newEmail)
+        userRepository.save(newEmailUser)
+    }
+
     /**
      * Получение всех пользователей системы по роли.
      * Для администратора и модератора.

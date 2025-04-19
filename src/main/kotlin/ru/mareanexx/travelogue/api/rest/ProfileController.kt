@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
+import ru.mareanexx.travelogue.api.response.WrappedResponse
 import ru.mareanexx.travelogue.domain.profile.ProfileEntity
 import ru.mareanexx.travelogue.domain.profile.ProfileService
 import ru.mareanexx.travelogue.domain.profile.dto.InspiringProfileResponse
@@ -27,20 +28,19 @@ class ProfileController(
 ) {
     @GetMapping
     @PreAuthorize("hasRole('USER')")
-    fun getAuthorsProfile(@RequestParam authorUuid: UUID): ResponseEntity<AuthorProfileResponse?> {
+    fun getAuthorsProfile(@RequestParam authorUuid: UUID): ResponseEntity<WrappedResponse<AuthorProfileResponse>> {
         return try {
             val authorProfile = profileService.getAuthorsProfile(authorUuid)
             val trips = tripService.getAuthorsTrips(authorProfile.id)
 
-            val response = AuthorProfileResponse(
-                profile = authorProfile,
-                trips = trips
-            )
+            val profile = AuthorProfileResponse(profile = authorProfile, trips = trips)
 
-            ResponseEntity.ok(response)
+            ResponseEntity.ok(WrappedResponse(
+                message = "Profile was found",
+                data = profile
+            ))
         } catch (e: Exception) {
-            println(e.message)
-            ResponseEntity.badRequest().body(null)
+            ResponseEntity.badRequest().body(WrappedResponse(message = "Can't find profile by profile id"))
         }
     }
 
@@ -67,30 +67,44 @@ class ProfileController(
     fun uploadNewProfile(
         @RequestPart("data") mainData: NewProfileRequest,
         @RequestPart("avatar") avatar: MultipartFile?,
-        @RequestPart("coverPhoto") coverPhoto: MultipartFile?
-    ): ResponseEntity<ProfileEntity?> {
+    ): ResponseEntity<WrappedResponse<ProfileEntity>> {
         return try {
-            val newProfile = profileService.createNewProfile(avatar, coverPhoto, mainData)
-            ResponseEntity(newProfile, HttpStatus.CREATED)
+            val newProfile = profileService.createNewProfile(avatar, mainData)
+            ResponseEntity(
+                WrappedResponse(
+                    message = "New profile successfully uploaded",
+                    data = newProfile
+                ), HttpStatus.CREATED)
         } catch (e: Exception) {
             println(e.message)
-            ResponseEntity.badRequest().body(null)
+            ResponseEntity.badRequest().body(
+                WrappedResponse(
+                    message = "Error in creating new profile"
+                )
+            )
         }
     }
 
     @PatchMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     @PreAuthorize("hasRole('USER')")
     fun editProfile(
-        @RequestPart("data") mainData: UpdateProfileRequest,
+        @RequestPart("data") data: UpdateProfileRequest,
         @RequestPart("avatar") avatar: MultipartFile?,
-        @RequestPart("coverPhoto") coverPhoto: MultipartFile?
-    ): ResponseEntity<ProfileEntity?> {
+        @RequestPart("cover") cover: MultipartFile?
+    ): ResponseEntity<WrappedResponse<ProfileEntity>> {
         return try {
-            val editedProfile = profileService.updateProfile(avatar, coverPhoto, mainData)
-            ResponseEntity.ok(editedProfile)
+            val editedProfile = profileService.updateProfile(avatar, cover, data)
+            ResponseEntity.ok(
+                WrappedResponse(
+                    message = "Profile information successfully changed",
+                    data = editedProfile
+                )
+            )
         } catch (e: Exception) {
             println(e.message)
-            ResponseEntity.badRequest().body(null)
+            ResponseEntity.badRequest().body(WrappedResponse(
+                message = "Error in editing user's profile"
+            ))
         }
     }
 

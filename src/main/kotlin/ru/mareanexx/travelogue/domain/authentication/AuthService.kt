@@ -42,7 +42,7 @@ class AuthService(
         val savedUser = userRepository.save(user)
         val userDetails = CustomUserDetails(user)
         val token = jwtService.generateToken(userDetails)
-        return AuthResponse(userUuid = savedUser.uuid!!, token = token)
+        return AuthResponse(userUuid = savedUser.uuid!!, email = request.email, token = token)
     }
 
     /**
@@ -65,6 +65,6 @@ class AuthService(
         }
 
         val token = jwtService.generateToken(userDetails)
-        return AuthResponse(userUuid = userDetails.userUuid!!, token = token)
+        return AuthResponse(userUuid = userDetails.userUuid!!, email = request.email, token = token)
     }
 }

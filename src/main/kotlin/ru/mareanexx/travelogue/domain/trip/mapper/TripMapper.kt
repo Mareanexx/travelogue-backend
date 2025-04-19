@@ -43,5 +43,6 @@ fun TripEntity.mapToResponse() = TripResponse(
     daysNumber = daysNumber,
     type = type,
     status = status,
-    coverPhoto = coverPhoto
+    coverPhoto = coverPhoto,
+    profileId = profileId
 )
