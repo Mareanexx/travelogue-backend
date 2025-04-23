@@ -13,7 +13,8 @@ import ru.mareanexx.travelogue.domain.profile.ProfileRepository
 import ru.mareanexx.travelogue.support.exceptions.WrongIdException
 import ru.mareanexx.travelogue.support.firebase.FirebaseMessagingService
 import ru.mareanexx.travelogue.support.firebase.messages.*
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import kotlin.jvm.optionals.getOrNull
 
 @Service
@@ -136,7 +137,7 @@ class NotificationsService(
                     relatedTripId = newTrip.tripId,
                     relatedPointId = null,
                     relatedCommentId = null,
-                    createdAt = LocalDateTime.now()
+                    createdAt = OffsetDateTime.now(ZoneOffset.UTC)
                 )
             }
             notificationsRepository.saveAll(entities)
@@ -183,7 +184,7 @@ class NotificationsService(
                     relatedTripId = newMapPoint.tripId,
                     relatedPointId = newMapPoint.mapPointId,
                     relatedCommentId = null,
-                    createdAt = LocalDateTime.now()
+                    createdAt = OffsetDateTime.now(ZoneOffset.UTC)
                 )
             }
             notificationsRepository.saveAll(entities)
@@ -221,5 +222,16 @@ class NotificationsService(
             .orElseThrow { WrongIdException("Не удалось найти profile по его id") }
 
         return notificationsRepository.findAllByRecipientId(recipientId)
+    }
+
+    /**
+     * Удалить все уведомления, где переданный profileId является получателем (recipientId)
+     * @throws WrongIdException если не найден профиль по profileId
+     */
+    fun deleteAllByProfileId(recipientId: Int) {
+        profileRepository.findById(recipientId)
+            .orElseThrow { WrongIdException("Не удалось найти profile по его id") }
+
+        notificationsRepository.deleteAllByRecipientId(recipientId)
     }
 }

@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
+import ru.mareanexx.travelogue.api.response.WrappedResponse
 import ru.mareanexx.travelogue.domain.notifications.NotificationsService
 import ru.mareanexx.travelogue.domain.notifications.dto.trip.NewTripNotification
 import ru.mareanexx.travelogue.domain.tags.TagService
@@ -23,7 +24,7 @@ class TripController(
     fun uploadNewTrip(
         @RequestPart("data") data: NewTripRequest,
         @RequestPart("cover") coverPhoto: MultipartFile
-    ): ResponseEntity<TripResponse?> {
+    ): ResponseEntity<WrappedResponse<TripResponse>> {
         return try {
             val newTrip = tripService.createNewTrip(data, coverPhoto)
             data.tagList?.let {
@@ -37,11 +38,15 @@ class TripController(
                     tripId = newTrip.id
                 )
             )
-
-            ResponseEntity.ok(newTrip)
+            ResponseEntity.ok(WrappedResponse(
+                message = "successfully added a new trip",
+                data = newTrip
+            ))
         } catch(e: Exception) {
             println(e.message)
-            ResponseEntity.badRequest().body(null)
+            ResponseEntity.badRequest().body(WrappedResponse(
+                message = "Can't add a new trip"
+            ))
         }
     }
 

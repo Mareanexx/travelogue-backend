@@ -1,7 +1,7 @@
 package ru.mareanexx.travelogue.domain.notifications.dto
 
 import ru.mareanexx.travelogue.domain.notifications.types.NotificationType
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
 
 data class NotificationResponse(
     val id: Int,
@@ -15,5 +15,5 @@ data class NotificationResponse(
     val relatedPointId: Int?,
     val relatedCommentId: Int?,
     val isRead: Boolean,
-    val createdAt: LocalDateTime
+    val createdAt: OffsetDateTime
 )

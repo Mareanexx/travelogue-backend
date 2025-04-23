@@ -1,5 +1,6 @@
 package ru.mareanexx.travelogue.domain.notifications
 
+import org.springframework.data.jdbc.repository.query.Modifying
 import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
@@ -24,6 +25,12 @@ interface NotificationsRepository : CrudRepository<NotificationsEntity, Int> {
         FROM notifications n
         JOIN profile pr ON pr.id = n.sender_id
         WHERE n.recipient_id = :recipientId
+        ORDER BY n.created_at DESC
     """)
     fun findAllByRecipientId(@Param("recipientId") recipientId: Int): List<NotificationResponse>
+    @Modifying
+    @Query("""
+        DELETE FROM notifications WHERE recipient_id = :recipientId
+    """)
+    fun deleteAllByRecipientId(@Param("recipientId") recipientId: Int)
 }

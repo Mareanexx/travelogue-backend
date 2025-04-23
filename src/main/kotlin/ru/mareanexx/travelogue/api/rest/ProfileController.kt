@@ -34,7 +34,7 @@ class ProfileController(
             val trips = tripService.getAuthorsTrips(authorProfile.id)
 
             val profile = AuthorProfileResponse(profile = authorProfile, trips = trips)
-
+            println("Пытаемся получить профиль пользвоателя: ${profile.profile.username}")
             ResponseEntity.ok(WrappedResponse(
                 message = "Profile was found",
                 data = profile

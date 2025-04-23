@@ -120,7 +120,7 @@ CREATE TABLE notifications (
     related_point_id INT NULL,
     related_comment_id INT NULL,
     is_read BOOLEAN NOT NULL DEFAULT FALSE,
-    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     CONSTRAINT fk_notif_recipient_profile FOREIGN KEY (recipient_id) REFERENCES profile(id) ON DELETE CASCADE,
     CONSTRAINT fk_notif_sender_profile FOREIGN KEY (sender_id) REFERENCES profile(id) ON DELETE CASCADE,
     CONSTRAINT fk_notif_trip FOREIGN KEY (related_trip_id) REFERENCES trip(id) ON DELETE CASCADE,
