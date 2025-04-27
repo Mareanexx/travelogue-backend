@@ -31,17 +31,18 @@ class FollowsService(
     /**
      * Отписаться от profile другого пользователя
      * Для пользователя.
-     * @param followUserRequest DTO запроса на подписку на профиль пользователя
+     * @param followerId id пользователя, который подписывается
+     * @param followingId id пользователя, на которого подписываются
      * @throws WrongIdException если какого либо профиля не существует
      */
-    fun unfollowProfile(followUserRequest: FollowUserRequest) {
-        profileRepository.findById(followUserRequest.followerId)
+    fun unfollowProfile(followerId: Int, followingId: Int) {
+        profileRepository.findById(followerId)
             .orElseThrow { WrongIdException("Профиля пользователя-отписчика с таким id не существует") }
 
-        profileRepository.findById(followUserRequest.followingId)
+        profileRepository.findById(followingId)
             .orElseThrow { WrongIdException("Профиля пользователя, от которого отписываются, с таким id не существует") }
 
-        followsRepository.deleteByFollows(followUserRequest.followerId, followUserRequest.followingId)
+        followsRepository.deleteByFollows(followerId, followingId)
     }
 
     /**

@@ -67,17 +67,22 @@ class TripController(
     fun editTrip(
         @RequestPart("data") data: EditTripRequest,
         @RequestPart("cover") coverPhoto: MultipartFile?
-    ): ResponseEntity<TripResponse?> {
+    ): ResponseEntity<WrappedResponse<TripResponse>> {
         return try {
             val editedTrip = tripService.editTrip(data, coverPhoto)
             data.tagList?.let {
                 val tags = tagService.editTags(it, editedTrip.id)
                 editedTrip.tagList = tags
             }
-            ResponseEntity.ok(editedTrip)
+            ResponseEntity.ok(WrappedResponse(
+                message = "Successfully update trip",
+                data = editedTrip
+            ))
         } catch(e: Exception) {
             println(e.message)
-            ResponseEntity.badRequest().body(null)
+            ResponseEntity.badRequest().body(WrappedResponse(
+                message = "Can't update this trip : ${e.message}"
+            ))
         }
     }
 

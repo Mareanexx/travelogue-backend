@@ -2,9 +2,8 @@ package ru.mareanexx.travelogue.domain.follows
 
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
-import ru.mareanexx.travelogue.domain.follows.dto.FollowerDTO
 import ru.mareanexx.travelogue.domain.follows.dto.FollowersAndFollowingsResponse
-import ru.mareanexx.travelogue.domain.follows.dto.FollowingDTO
+import ru.mareanexx.travelogue.domain.follows.dto.Follows
 
 @Repository
 class FollowsRepository(private val jdbcTemplate: JdbcTemplate) {
@@ -30,7 +29,7 @@ class FollowsRepository(private val jdbcTemplate: JdbcTemplate) {
             followersSql,
             arrayOf(profileId)
         ) { rs, _ ->
-            FollowerDTO(
+            Follows(
                 id = rs.getInt("id"),
                 username = rs.getString("username"),
                 avatar = rs.getString("avatar"),
@@ -49,7 +48,7 @@ class FollowsRepository(private val jdbcTemplate: JdbcTemplate) {
             followingsSql,
             arrayOf(profileId)
         ) { rs, _ ->
-            FollowingDTO(
+            Follows(
                 id = rs.getInt("id"),
                 username = rs.getString("username"),
                 avatar = rs.getString("avatar"),
@@ -57,6 +56,14 @@ class FollowsRepository(private val jdbcTemplate: JdbcTemplate) {
             )
         }
 
-        return FollowersAndFollowingsResponse(followers, followings)
+        val followingIds = followings.map { it.id }.toSet()
+
+        val updatedFollowers = followers.map { follower ->
+            follower.copy(
+                isFollowingBack = followingIds.contains(follower.id)
+            )
+        }
+
+        return FollowersAndFollowingsResponse(followers = updatedFollowers, followings = followings)
     }
 }

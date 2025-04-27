@@ -133,15 +133,20 @@ class ProfileController(
         }
     }
 
-    @GetMapping("/stats/{authorId}")
+    @GetMapping("/stats")
     @PreAuthorize("hasRole('USER')")
-    fun getUpdatedStats(@PathVariable authorId: Int): ResponseEntity<UpdatedProfileStatsResponse?> {
+    fun getUpdatedStats(@RequestParam authorId: Int): ResponseEntity<WrappedResponse<UpdatedProfileStatsResponse>> {
         return try {
             val updatedStats = profileService.getUpdatedStats(authorId)
-            ResponseEntity.ok(updatedStats)
+            ResponseEntity.ok(WrappedResponse(
+                message = "Successfully get updated stats",
+                data = updatedStats
+            ))
         } catch (e: Exception) {
             println(e.message)
-            ResponseEntity.badRequest().body(null)
+            ResponseEntity.badRequest().body(WrappedResponse(
+                message = "Can't get updated stats: ${e.message}"
+            ))
         }
     }
 }
