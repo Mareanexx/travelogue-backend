@@ -9,7 +9,6 @@ import org.springframework.web.multipart.MultipartFile
 import ru.mareanexx.travelogue.api.response.WrappedResponse
 import ru.mareanexx.travelogue.domain.profile.ProfileEntity
 import ru.mareanexx.travelogue.domain.profile.ProfileService
-import ru.mareanexx.travelogue.domain.profile.dto.InspiringProfileResponse
 import ru.mareanexx.travelogue.domain.profile.dto.NewProfileRequest
 import ru.mareanexx.travelogue.domain.profile.dto.UpdateProfileRequest
 import ru.mareanexx.travelogue.domain.profile.dto.fcm.UpdateTokenRequest
@@ -118,18 +117,6 @@ class ProfileController(
             ResponseEntity.badRequest().body(mapOf("error" to "Can't find profile by id"))
         } catch (e: Exception) {
             ResponseEntity.badRequest().body(mapOf("error" to "Can't update user token"))
-        }
-    }
-
-    @GetMapping("/inspiring")
-    @PreAuthorize("hasRole('USER')")
-    fun getInspiring(): ResponseEntity<List<InspiringProfileResponse>> {
-        return try {
-            val responseList = profileService.getInspiringTravellers()
-            ResponseEntity.ok(responseList)
-        } catch(e: Exception) {
-            println(e.message)
-            ResponseEntity.badRequest().body(emptyList())
         }
     }
 

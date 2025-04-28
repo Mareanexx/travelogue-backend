@@ -101,8 +101,8 @@ class ProfileService(
      * Получить семь путешественников, у которых trip_number max
      * Для пользователя.
      */
-    fun getInspiringTravellers(): List<InspiringProfileResponse> {
-        return profileRepository.findOrderedByTripsNumber()
+    fun getInspiringTravellers(authorId: Int): List<InspiringProfileResponse> {
+        return profileRepository.findOrderedByTripsNumber(authorId)
     }
 
     /**

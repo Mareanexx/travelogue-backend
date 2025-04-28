@@ -108,4 +108,12 @@ class TripService(
     fun getAllFollowingsCurrentTrips(userProfile: Int): List<ActiveFollowingTrip> {
         return tripRepository.findAllByStatusAndFollowerId(userProfile)
     }
+
+    /**
+     * Получить 5 самых залайканных путешествий.
+     * Количество лайков определяется по map points
+     */
+    fun getFiveMostlyLikedTrips(authorId: Int): List<TrendingTrip> {
+        return tripRepository.findFiveByLikesNumber(authorId)
+    }
 }

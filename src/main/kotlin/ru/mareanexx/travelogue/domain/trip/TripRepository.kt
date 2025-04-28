@@ -4,10 +4,7 @@ import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
-import ru.mareanexx.travelogue.domain.trip.dto.ActiveFollowingTrip
-import ru.mareanexx.travelogue.domain.trip.dto.AuthorTrip
-import ru.mareanexx.travelogue.domain.trip.dto.TripByTag
-import ru.mareanexx.travelogue.domain.trip.dto.UserTrip
+import ru.mareanexx.travelogue.domain.trip.dto.*
 
 @Repository
 interface TripRepository : CrudRepository<TripEntity, Int> {
@@ -51,4 +48,18 @@ interface TripRepository : CrudRepository<TripEntity, Int> {
         WHERE tr.status = 'Current' AND tr.type = 'Public'
     """)
     fun findAllByStatusAndFollowerId(@Param("followerId") followerId: Int): List<ActiveFollowingTrip>
+
+
+    @Query("""
+        SELECT t.id, t.name, t.start_date, t.steps_number, t.days_number,
+            t.status, t.cover_photo, p.id AS profile_id, p.username, p.avatar
+        FROM trip t
+        JOIN profile p ON p.id = t.profile_id
+        JOIN map_point mp ON mp.trip_id = t.id
+        WHERE t.type = 'Public' AND p.id != :authorId
+        GROUP BY t.id, p.id
+        ORDER BY SUM(mp.likes_number) DESC
+        LIMIT 5
+    """)
+    fun findFiveByLikesNumber(@Param("authorId") authorId: Int): List<TrendingTrip>
 }

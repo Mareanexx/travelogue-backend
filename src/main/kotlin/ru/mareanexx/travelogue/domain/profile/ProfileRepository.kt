@@ -38,15 +38,20 @@ interface ProfileRepository: CrudRepository<ProfileEntity, Int> {
     fun findByProfileId(@Param("profileId") profileId: Int): ProfileDTO
 
     @Query("""
-        SELECT p.id, p.username, p.full_name, p.bio, p.avatar, p.cover_photo, 
-            p.followers_number, p.following_number, p.trips_number
+        SELECT p.id, p.username, p.bio, p.avatar, p.cover_photo, 
+            p.followers_number, p.following_number, p.trips_number,
+            EXISTS (
+               SELECT 1
+               FROM follows f 
+               WHERE f.follower_id = :authorId AND f.following_id = p.id
+            ) AS isFollowing
         FROM "profile" p
         JOIN "user" u ON u.uuid = p.user_uuid
-        WHERE u.status = 'Active'
+        WHERE u.status = 'Active' AND p.id != :authorId
         ORDER BY p.trips_number DESC
         LIMIT 7
     """)
-    fun findOrderedByTripsNumber(): List<InspiringProfileResponse>
+    fun findOrderedByTripsNumber(@Param("authorId") authorId: Int): List<InspiringProfileResponse>
 
     @Query("""
         SELECT trips_number, followers_number, following_number
