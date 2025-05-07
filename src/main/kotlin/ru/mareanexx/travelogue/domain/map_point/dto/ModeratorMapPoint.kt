@@ -1,6 +1,6 @@
 package ru.mareanexx.travelogue.domain.map_point.dto
 
-import ru.mareanexx.travelogue.domain.point_photo.dto.PointPhotoDTO
+import ru.mareanexx.travelogue.domain.point_photo.dto.PointPhotoDto
 
 data class ModeratorMapPoint(
     val id: Int,
@@ -10,5 +10,5 @@ data class ModeratorMapPoint(
 
 data class ModeratorMapPointResponse(
     val mapPoints: List<ModeratorMapPoint>,
-    val photos: List<PointPhotoDTO>?
+    val photos: List<PointPhotoDto>?
 )

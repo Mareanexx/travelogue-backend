@@ -3,10 +3,7 @@ package ru.mareanexx.travelogue.domain.profile
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
-import ru.mareanexx.travelogue.domain.profile.dto.InspiringProfileResponse
-import ru.mareanexx.travelogue.domain.profile.dto.NewProfileRequest
-import ru.mareanexx.travelogue.domain.profile.dto.ProfileDTO
-import ru.mareanexx.travelogue.domain.profile.dto.UpdateProfileRequest
+import ru.mareanexx.travelogue.domain.profile.dto.*
 import ru.mareanexx.travelogue.domain.profile.dto.fcm.UpdateTokenRequest
 import ru.mareanexx.travelogue.domain.profile.dto.stats.UpdatedProfileStatsResponse
 import ru.mareanexx.travelogue.domain.profile.mapper.copyChangedProperties
@@ -27,6 +24,14 @@ class ProfileService(
     companion object {
         const val COVER_PATH_MIDDLE = "profile/covers"
         const val AVATAR_PATH_MIDDLE = "profile/avatars"
+    }
+
+    /**
+     * Получить все профили по поисковому запросу.
+     * @param query запрос в поиске
+     */
+    fun getProfilesBySearch(authorId: Int, query: String): List<SearchProfile> {
+        return profileRepository.findAllMatches(authorId, query)
     }
 
     /**

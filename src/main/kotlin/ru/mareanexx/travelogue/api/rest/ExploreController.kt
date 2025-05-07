@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController
 import ru.mareanexx.travelogue.api.response.WrappedResponse
 import ru.mareanexx.travelogue.domain.profile.ProfileService
 import ru.mareanexx.travelogue.domain.profile.dto.InspiringProfileResponse
+import ru.mareanexx.travelogue.domain.profile.dto.SearchResponse
 import ru.mareanexx.travelogue.domain.tags.TagService
 import ru.mareanexx.travelogue.domain.tags.dto.TopTag
 import ru.mareanexx.travelogue.domain.trip.TripService
@@ -22,15 +23,29 @@ class ExploreController(
     private val tripService: TripService,
     private val profileService: ProfileService
 ) {
+    @GetMapping("/search")
+    @PreAuthorize("hasRole('USER')")
+    fun searchTripsAndProfiles(
+        @RequestParam authorId: Int,
+        @RequestParam query: String
+    ): ResponseEntity<WrappedResponse<SearchResponse>> {
+        return try {
+            val trips = tripService.getTripsForSearch(authorId, query)
+            val profiles = profileService.getProfilesBySearch(authorId, query)
+            ResponseEntity.ok(WrappedResponse(
+                data = SearchResponse(profiles, trips)
+            ))
+        } catch (e: Exception) {
+            ResponseEntity.badRequest().body(WrappedResponse(message = e.message))
+        }
+    }
+
     @GetMapping("/tags")
     @PreAuthorize("hasRole('USER')")
     fun getTrendingTags(): ResponseEntity<WrappedResponse<List<TopTag>>> {
         return try {
             val topTagsList = tagsService.getTop()
-            ResponseEntity.ok(WrappedResponse(
-                message = "Successfully get trending tags",
-                data = topTagsList
-            ))
+            ResponseEntity.ok(WrappedResponse(data = topTagsList))
         } catch (e: Exception) {
             ResponseEntity.badRequest().body(WrappedResponse(message = "Can't get trending tags"))
         }

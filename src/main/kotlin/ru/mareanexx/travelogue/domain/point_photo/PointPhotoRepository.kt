@@ -5,10 +5,17 @@ import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
-import ru.mareanexx.travelogue.domain.point_photo.dto.PointPhotoDTO
+import ru.mareanexx.travelogue.domain.point_photo.dto.PointPhotoDto
 
 @Repository
 interface PointPhotoRepository: CrudRepository<PointPhotoEntity, Int> {
+    @Query("""
+        SELECT ph.id, ph.file_path, ph.map_point_id
+        FROM point_photo ph
+        JOIN "map_point" mp ON mp.id = ph.map_point_id
+        WHERE mp.trip_id = :tripId
+    """)
+    fun findAllByTripId(@Param("tripId") tripId: Int): List<PointPhotoDto>
     @Modifying
     @Query("""
         DELETE FROM point_photo
@@ -23,11 +30,4 @@ interface PointPhotoRepository: CrudRepository<PointPhotoEntity, Int> {
     """)
     fun findAllById(@Param("mapPointId") mapPointId: Int): List<PointPhotoEntity>
 
-    @Query("""
-        SELECT ph.id, ph.file_path, ph.map_point_id
-        FROM point_photo ph
-        JOIN "map_point" mp ON mp.id = ph.map_point_id
-        WHERE mp.trip_id = :tripId
-    """)
-    fun findAllByTripId(@Param("tripId") tripId: Int): List<PointPhotoDTO>
 }

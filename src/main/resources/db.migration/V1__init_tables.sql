@@ -81,7 +81,7 @@ CREATE TABLE map_point (
     likes_number INT NOT NULL DEFAULT 0,
     comments_number INT NOT NULL DEFAULT 0,
     photos_number INT NOT NULL DEFAULT 0,
-    arrival_date TIMESTAMP NOT NULL,
+    arrival_date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     trip_id INT NOT NULL,
     CONSTRAINT fk_trip FOREIGN KEY (trip_id) REFERENCES trip(id) ON DELETE CASCADE
 );

@@ -4,10 +4,24 @@ import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
+import ru.mareanexx.travelogue.domain.profile.dto.SearchTrip
 import ru.mareanexx.travelogue.domain.trip.dto.*
 
 @Repository
 interface TripRepository : CrudRepository<TripEntity, Int> {
+
+    @Query("""
+        SELECT tr.id, tr.cover_photo, tr.name, 
+            pr.id AS profile_id, pr.avatar, pr.username 
+        FROM trip tr
+        JOIN profile pr ON tr.profile_id = pr.id
+        WHERE tr.name ILIKE '%' || :query || '%' AND pr.id != :authorId
+    """)
+    fun findAllMatches(
+        @Param("authorId") authorId: Int,
+        @Param("query") query: String
+    ): List<SearchTrip>
+
     @Query("""
         SELECT id, name, description, start_date, end_date, steps_number,
         days_number, type, status, cover_photo

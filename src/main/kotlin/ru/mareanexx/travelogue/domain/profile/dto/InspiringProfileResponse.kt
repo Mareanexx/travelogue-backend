@@ -9,5 +9,5 @@ data class InspiringProfileResponse(
     val followersNumber: Int,
     val followingNumber: Int,
     val tripsNumber: Int,
-    val isFollowing: Boolean = false
+    val isFollowing: Boolean
 )

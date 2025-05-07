@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import ru.mareanexx.travelogue.domain.map_point.dto.DeletedPhoto
-import ru.mareanexx.travelogue.domain.point_photo.dto.PointPhotoDTO
+import ru.mareanexx.travelogue.domain.point_photo.dto.PointPhotoDto
 import ru.mareanexx.travelogue.support.utils.PhotoService
 
 @Service
@@ -22,7 +22,7 @@ class PointPhotoService(
      * @param mapPointId id созданного map_point
      * @param photos список переданных фотографий пользователя
      */
-    fun addNewToMapPointId(mapPointId: Int, photos: List<MultipartFile>): List<PointPhotoDTO> {
+    fun addNewToMapPointId(mapPointId: Int, photos: List<MultipartFile>): List<PointPhotoDto> {
         if (photos.isEmpty()) return emptyList()
 
         val pointPhotoList = mutableListOf<PointPhotoEntity>()
@@ -31,7 +31,7 @@ class PointPhotoService(
             pointPhotoList += PointPhotoEntity(filePath = filePath, mapPointId = mapPointId)
         }
 
-        return pointPhotoRepository.saveAll(pointPhotoList).map { PointPhotoDTO(it.id!!, it.filePath, it.mapPointId) }
+        return pointPhotoRepository.saveAll(pointPhotoList).map { PointPhotoDto(it.id!!, it.filePath, it.mapPointId) }
     }
 
     /**
@@ -65,9 +65,9 @@ class PointPhotoService(
 
     /**
      * Получить все point_photos для каждого map_point путешествия
-     * @param mapPoints все полученные map_points из другого сервиса
+     * @param tripId id путешествия
      */
-    fun getAllByTripId(tripId: Int): List<PointPhotoDTO> {
+    fun getAllByTripId(tripId: Int): List<PointPhotoDto> {
         return pointPhotoRepository.findAllByTripId(tripId)
     }
 }

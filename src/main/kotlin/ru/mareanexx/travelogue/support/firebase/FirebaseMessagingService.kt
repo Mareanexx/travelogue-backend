@@ -8,7 +8,6 @@ import ru.mareanexx.travelogue.support.firebase.messages.*
 
 @Service
 class FirebaseMessagingService {
-
     fun buildNotification(message: NewMessage): Notification {
         return Notification.builder()
             .setTitle(message.type.title)

@@ -1,6 +1,6 @@
 package ru.mareanexx.travelogue.domain.map_point.dto
 
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
 
 data class EditMapPointRequest(
     val id: Int,
@@ -8,5 +8,5 @@ data class EditMapPointRequest(
     val latitude: Double? = null,
     val name: String? = null,
     val description: String? = null,
-    val arrivalDate: LocalDateTime? = null,
+    val arrivalDate: OffsetDateTime? = null,
 )

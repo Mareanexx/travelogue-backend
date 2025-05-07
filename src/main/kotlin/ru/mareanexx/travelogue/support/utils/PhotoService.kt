@@ -11,7 +11,7 @@ class PhotoService {
     fun saveFile(file: MultipartFile, uploadDir: String, pathMiddle: String): String {
         val rootPath = Paths.get("").toAbsolutePath().toString()
         val fullUploadDir = Paths.get(rootPath, uploadDir).toString()
-
+    
         val dir = File(fullUploadDir)
         if (!dir.exists()) dir.mkdirs()
 

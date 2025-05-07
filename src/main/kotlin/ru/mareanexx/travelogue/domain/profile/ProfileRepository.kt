@@ -4,13 +4,31 @@ import org.springframework.data.jdbc.repository.query.Modifying
 import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
+import org.springframework.stereotype.Repository
 import ru.mareanexx.travelogue.domain.notifications.dto.trip.FollowerWithFcm
 import ru.mareanexx.travelogue.domain.profile.dto.InspiringProfileResponse
 import ru.mareanexx.travelogue.domain.profile.dto.ProfileDTO
+import ru.mareanexx.travelogue.domain.profile.dto.SearchProfile
 import ru.mareanexx.travelogue.domain.profile.dto.stats.UpdatedProfileStatsResponse
 import java.util.*
 
+@Repository
 interface ProfileRepository: CrudRepository<ProfileEntity, Int> {
+    @Query("""
+        SELECT pr.id, pr.avatar, pr.username, pr.bio,
+            EXISTS (
+               SELECT 1
+               FROM follows f
+               WHERE f.follower_id = :authorId AND f.following_id = pr.id
+            ) AS is_following
+        FROM profile pr
+        WHERE pr.username ILIKE '%' || :query || '%' AND pr.id != :authorId
+    """)
+    fun findAllMatches(
+        @Param("authorId") authorId: Int,
+        @Param("query") query: String
+    ): List<SearchProfile>
+
     @Modifying
     @Query("""
         UPDATE profile SET fcm_token = :token
@@ -44,7 +62,7 @@ interface ProfileRepository: CrudRepository<ProfileEntity, Int> {
                SELECT 1
                FROM follows f 
                WHERE f.follower_id = :authorId AND f.following_id = p.id
-            ) AS isFollowing
+            ) AS is_following
         FROM "profile" p
         JOIN "user" u ON u.uuid = p.user_uuid
         WHERE u.status = 'Active' AND p.id != :authorId

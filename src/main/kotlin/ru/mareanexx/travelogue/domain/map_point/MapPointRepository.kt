@@ -22,6 +22,7 @@ interface MapPointRepository: CrudRepository<MapPointEntity, Int> {
             comments_number, photos_number, arrival_date, trip_id
         FROM "map_point"
         WHERE trip_id = :tripId
+        ORDER BY arrival_date DESC
     """)
     fun findAllByTripIdForUser(@Param("tripId") tripId: Int): List<UserMapPoint>
 

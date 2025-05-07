@@ -4,12 +4,14 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import ru.mareanexx.travelogue.domain.profile.ProfileRepository
+import ru.mareanexx.travelogue.domain.profile.dto.SearchTrip
 import ru.mareanexx.travelogue.domain.trip.dto.*
 import ru.mareanexx.travelogue.domain.trip.mapper.copyChangedProperties
 import ru.mareanexx.travelogue.domain.trip.mapper.mapToResponse
 import ru.mareanexx.travelogue.domain.trip.mapper.mapToTrip
 import ru.mareanexx.travelogue.support.exceptions.WrongIdException
 import ru.mareanexx.travelogue.support.utils.PhotoService
+import kotlin.jvm.optionals.getOrNull
 
 
 @Service
@@ -24,12 +26,29 @@ class TripService(
     }
 
     /**
+     * Получить все путешествия, который подходят по названию
+     * @param query запрос в поиске
+     */
+    fun getTripsForSearch(authorId: Int, query: String): List<SearchTrip> {
+        return tripRepository.findAllMatches(authorId, query)
+    }
+
+    /**
      * Получить путешествия пользователя автора запроса.
      * Данные идут для заполнения профиля.
      * @param authorId id профиля пользователя инициатора запроса
      */
     fun getAuthorsTrips(authorId: Int): List<AuthorTrip> {
         return tripRepository.findAllByAuthorProfileId(authorId)
+    }
+
+    /**
+     * Получить одно путешествие по его id
+     * @param tripId id путешествия, которое будет возвращено
+     */
+    fun getTrip(tripId: Int): TripResponse {
+        val trip = tripRepository.findById(tripId).getOrNull() ?: throw WrongIdException("Нет путешествия по такому id")
+        return trip.mapToResponse()
     }
 
     /**

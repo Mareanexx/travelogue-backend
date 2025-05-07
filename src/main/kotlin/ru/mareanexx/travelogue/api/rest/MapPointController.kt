@@ -5,12 +5,13 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
+import ru.mareanexx.travelogue.api.response.WrappedResponse
 import ru.mareanexx.travelogue.domain.map_point.MapPointService
 import ru.mareanexx.travelogue.domain.map_point.dto.*
 import ru.mareanexx.travelogue.domain.notifications.NotificationsService
 import ru.mareanexx.travelogue.domain.notifications.dto.mappoint.NewMapPointNotification
 import ru.mareanexx.travelogue.domain.point_photo.PointPhotoService
-import ru.mareanexx.travelogue.domain.point_photo.dto.PointPhotoDTO
+import ru.mareanexx.travelogue.domain.point_photo.dto.PointPhotoDto
 
 @RestController
 @RequestMapping("/api/v1/map-points")
@@ -24,12 +25,12 @@ class MapPointController(
     fun addNewMapPoint(
         @RequestPart("data") data: NewMapPointRequest,
         @RequestPart("photos", required = false) photos: List<MultipartFile>?
-    ): ResponseEntity<UserMapPointResponse?> {
+    ): ResponseEntity<WrappedResponse<MapPointWithPhotos>> {
         return try {
             val userMapPoint = mapPointService.addNewToTrip(data, photos?.size ?: 0)
             val photosList = pointPhotoService.addNewToMapPointId(userMapPoint.id, photos ?: emptyList())
 
-            val response = UserMapPointResponse(
+            val response = MapPointWithPhotos(
                 userMapPoint, photosList
             )
 
@@ -39,11 +40,10 @@ class MapPointController(
                     mapPointId = userMapPoint.id
                 )
             )
-
-            ResponseEntity.ok(response)
+            ResponseEntity.ok(WrappedResponse(data = response))
         } catch (e: Exception) {
             println(e.message)
-            ResponseEntity.badRequest().body(null)
+            ResponseEntity.badRequest().body(WrappedResponse(message = "Can't add new map point"))
         }
     }
 
@@ -53,7 +53,7 @@ class MapPointController(
         @RequestPart("data") data: EditMapPointRequest,
         @RequestPart("deleted", required = false) deletedPhotos: List<DeletedPhoto>?,
         @RequestPart("photos", required = false) photos: List<MultipartFile>?
-    ): ResponseEntity<UserMapPointResponse?> {
+    ): ResponseEntity<MapPointWithPhotos?> {
         return try {
             val editedMapPoint = mapPointService.editMapPoint(data, changedPhotosNumber = { lastNumber ->
                 lastNumber - (deletedPhotos?.size ?: 0) + (photos?.size ?: 0)
@@ -62,12 +62,12 @@ class MapPointController(
             if (deletedPhotos != null) {
                 pointPhotoService.deletePhotosByFilePath(deletedPhotos)
             }
-            var photosResponse: List<PointPhotoDTO> = emptyList()
+            var photosResponse: List<PointPhotoDto> = emptyList()
             if (photos != null) {
                 photosResponse = pointPhotoService.addNewToMapPointId(editedMapPoint.id, photos)
             }
 
-            val response = UserMapPointResponse(
+            val response = MapPointWithPhotos(
                 editedMapPoint, photosResponse
             )
 
@@ -77,23 +77,6 @@ class MapPointController(
             ResponseEntity.badRequest().body(null)
         }
     }
-
-    @GetMapping
-    @PreAuthorize("hasRole('USER')")
-    fun getAllForUser(@RequestParam tripId: Int): ResponseEntity<UserMapPointsResponse?> {
-        return try {
-            val mapPoints = mapPointService.getAllByTripId(tripId)
-            if (mapPoints.isEmpty()) ResponseEntity.ok(null)
-            val photos = pointPhotoService.getAllByTripId(mapPoints[0].tripId)
-
-            val response = UserMapPointsResponse(mapPoints, photos)
-
-            ResponseEntity.ok(response)
-        } catch (e: Exception) {
-            ResponseEntity.badRequest().body(null)
-        }
-    }
-
 
     @DeleteMapping("/{mapPointId}")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR')")

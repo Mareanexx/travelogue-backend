@@ -6,8 +6,12 @@ import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import ru.mareanexx.travelogue.api.response.WrappedResponse
+import ru.mareanexx.travelogue.domain.map_point.MapPointService
+import ru.mareanexx.travelogue.domain.map_point.dto.MapPointWithPhotos
+import ru.mareanexx.travelogue.domain.map_point.dto.TripWithMapPoints
 import ru.mareanexx.travelogue.domain.notifications.NotificationsService
 import ru.mareanexx.travelogue.domain.notifications.dto.trip.NewTripNotification
+import ru.mareanexx.travelogue.domain.point_photo.PointPhotoService
 import ru.mareanexx.travelogue.domain.tags.TagService
 import ru.mareanexx.travelogue.domain.trip.TripService
 import ru.mareanexx.travelogue.domain.trip.dto.*
@@ -17,8 +21,30 @@ import ru.mareanexx.travelogue.domain.trip.dto.*
 class TripController(
     private val tripService: TripService,
     private val tagService: TagService,
+    private val mapPointService: MapPointService,
+    private val pointPhotoService: PointPhotoService,
     private val notificationsService: NotificationsService
 ) {
+    @GetMapping
+    @PreAuthorize("hasRole('USER')")
+    fun getTripWithMapPoints(
+        @RequestParam tripId: Int
+    ): ResponseEntity<WrappedResponse<TripWithMapPoints>> {
+        return try {
+            val trip = tripService.getTrip(tripId)
+            trip.tagList = tagService.getAllByTripId(tripId)
+
+            val mapPoints = mapPointService.getAllByTripId(tripId)
+            val pointsPhotos = pointPhotoService.getAllByTripId(tripId)
+            val mapPointsResponse: List<MapPointWithPhotos> = mapPoints.map { mapPoint ->
+                MapPointWithPhotos(mapPoint, pointsPhotos.filter { it.mapPointId == mapPoint.id })
+            }
+            ResponseEntity.ok(WrappedResponse(data = TripWithMapPoints(trip, mapPointsResponse)))
+        } catch (e: Exception) {
+            ResponseEntity.badRequest().body(WrappedResponse(message = "Can't get trip with map points"))
+        }
+    }
+
     @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     @PreAuthorize("hasRole('USER')")
     fun uploadNewTrip(
@@ -38,15 +64,9 @@ class TripController(
                     tripId = newTrip.id
                 )
             )
-            ResponseEntity.ok(WrappedResponse(
-                message = "successfully added a new trip",
-                data = newTrip
-            ))
+            ResponseEntity.ok(WrappedResponse(data = newTrip))
         } catch(e: Exception) {
-            println(e.message)
-            ResponseEntity.badRequest().body(WrappedResponse(
-                message = "Can't add a new trip"
-            ))
+            ResponseEntity.badRequest().body(WrappedResponse(message = "Can't add a new trip"))
         }
     }
 

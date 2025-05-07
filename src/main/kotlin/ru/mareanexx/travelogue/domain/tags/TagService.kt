@@ -12,6 +12,14 @@ class TagService(
     private val tagsRepository: TagsRepository
 ) {
     /**
+     * Получить все теги путешествия
+     * @param tripId id путешествия, у которого надо найти путешествия
+     */
+    fun getAllByTripId(tripId: Int) : List<TagResponse> {
+        return tagsRepository.findAllByTripId(tripId)
+    }
+
+    /**
      * Добавить новые теги при создании нового trip.
      * @param listTags список всех тегов
      * @param tripId id путешествия к которому прикрепляются теги

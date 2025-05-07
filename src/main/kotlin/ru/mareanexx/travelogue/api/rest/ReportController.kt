@@ -3,6 +3,7 @@ package ru.mareanexx.travelogue.api.rest
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
+import ru.mareanexx.travelogue.api.response.WrappedResponse
 import ru.mareanexx.travelogue.domain.report.ReportService
 import ru.mareanexx.travelogue.domain.report.dto.ReportWithTrip
 import ru.mareanexx.travelogue.support.exceptions.WrongIdException
@@ -31,14 +32,16 @@ class ReportController(
 
     @PostMapping
     @PreAuthorize("hasRole('USER')")
-    fun addNewReport(@RequestParam tripId: Int): ResponseEntity<Map<String, String>> {
+    fun addNewReport(@RequestParam tripId: Int): ResponseEntity<WrappedResponse<Nothing>> {
         return try {
             reportService.addNewReport(tripId)
-            ResponseEntity.ok(mapOf("success" to "Successfully added new report"))
+            ResponseEntity.ok(WrappedResponse(
+                message = "Thank you, your report has been received!"
+            ))
         } catch(e: WrongIdException) {
-            ResponseEntity.badRequest().body(mapOf("error" to "Trip with such id wasn't found"))
+            ResponseEntity.badRequest().body(WrappedResponse(message = "Trip with such id wasn't found"))
         } catch (e: Exception) {
-            ResponseEntity.badRequest().body(mapOf("error" to "Can't add new report"))
+            ResponseEntity.badRequest().body(WrappedResponse(message = "Can't add new report"))
         }
     }
 }

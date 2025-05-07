@@ -2,7 +2,7 @@ package ru.mareanexx.travelogue.domain.map_point
 
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Table
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
 
 @Table(name = "map_point")
 data class MapPointEntity(
@@ -15,6 +15,6 @@ data class MapPointEntity(
     val likesNumber: Int = 0,
     val commentsNumber: Int = 0,
     val photosNumber: Int = 0,
-    val arrivalDate: LocalDateTime,
+    val arrivalDate: OffsetDateTime,
     val tripId: Int // FK на trip
 )

@@ -25,15 +25,28 @@ class ProfileController(
     private val profileService: ProfileService,
     private val tripService: TripService
 ) {
+    @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
+    @PreAuthorize("hasRole('USER')")
+    fun uploadNewProfile(
+        @RequestPart("data") mainData: NewProfileRequest,
+        @RequestPart("avatar") avatar: MultipartFile?,
+    ): ResponseEntity<WrappedResponse<ProfileEntity>> {
+        return try {
+            val newProfile = profileService.createNewProfile(avatar, mainData)
+            ResponseEntity(WrappedResponse(data = newProfile), HttpStatus.CREATED)
+        } catch (e: Exception) {
+            println(e.message)
+            ResponseEntity.badRequest().body(WrappedResponse(message = "Error in creating new profile"))
+        }
+    }
     @GetMapping
     @PreAuthorize("hasRole('USER')")
     fun getAuthorsProfile(@RequestParam authorUuid: UUID): ResponseEntity<WrappedResponse<AuthorProfileResponse>> {
         return try {
             val authorProfile = profileService.getAuthorsProfile(authorUuid)
             val trips = tripService.getAuthorsTrips(authorProfile.id)
-
             val profile = AuthorProfileResponse(profile = authorProfile, trips = trips)
-            println("Пытаемся получить профиль пользвоателя: ${profile.profile.username}")
+
             ResponseEntity.ok(WrappedResponse(
                 message = "Profile was found",
                 data = profile
@@ -61,28 +74,6 @@ class ProfileController(
         }
     }
 
-    @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
-    @PreAuthorize("hasRole('USER')")
-    fun uploadNewProfile(
-        @RequestPart("data") mainData: NewProfileRequest,
-        @RequestPart("avatar") avatar: MultipartFile?,
-    ): ResponseEntity<WrappedResponse<ProfileEntity>> {
-        return try {
-            val newProfile = profileService.createNewProfile(avatar, mainData)
-            ResponseEntity(
-                WrappedResponse(
-                    message = "New profile successfully uploaded",
-                    data = newProfile
-                ), HttpStatus.CREATED)
-        } catch (e: Exception) {
-            println(e.message)
-            ResponseEntity.badRequest().body(
-                WrappedResponse(
-                    message = "Error in creating new profile"
-                )
-            )
-        }
-    }
 
     @PatchMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     @PreAuthorize("hasRole('USER')")
