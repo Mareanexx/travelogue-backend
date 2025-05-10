@@ -18,13 +18,21 @@ interface MapPointRepository: CrudRepository<MapPointEntity, Int> {
     fun findAllByTripIdForModerator(@Param("tripId") tripId: Int): List<ModeratorMapPoint>
 
     @Query("""
-        SELECT id, longitude, latitude, name, description, likes_number,
-            comments_number, photos_number, arrival_date, trip_id
-        FROM "map_point"
+        SELECT mp.id, mp.longitude, mp.latitude, mp.name, mp.description, mp.likes_number,
+            mp.comments_number, mp.photos_number, mp.arrival_date, mp.trip_id,
+            EXISTS (
+               SELECT 1
+               FROM likes l 
+               WHERE l.profile_id = :authorId AND l.map_point_id = mp.id
+            ) AS is_liked
+        FROM "map_point" mp
         WHERE trip_id = :tripId
         ORDER BY arrival_date DESC
     """)
-    fun findAllByTripIdForUser(@Param("tripId") tripId: Int): List<UserMapPoint>
+    fun findAllByTripIdForUser(
+        @Param("authorId") authorId: Int,
+        @Param("tripId") tripId: Int
+    ): List<UserMapPoint>
 
     @Query("""
         SELECT id, likes_number, comments_number

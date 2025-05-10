@@ -1,6 +1,6 @@
 package ru.mareanexx.travelogue.domain.comment.dto
 
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
 
 /**
  * DTO для получения комментария под mapPoint.
@@ -10,7 +10,7 @@ import java.time.LocalDateTime
 data class CommentResponse(
     val id: Int,
     val text: String,
-    val sendDate: LocalDateTime,
+    val sendDate: OffsetDateTime,
     val senderProfileId: Int,
     val username: String,
     val avatar: String?

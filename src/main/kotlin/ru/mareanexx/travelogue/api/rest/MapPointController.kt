@@ -53,7 +53,7 @@ class MapPointController(
         @RequestPart("data") data: EditMapPointRequest,
         @RequestPart("deleted", required = false) deletedPhotos: List<DeletedPhoto>?,
         @RequestPart("photos", required = false) photos: List<MultipartFile>?
-    ): ResponseEntity<MapPointWithPhotos?> {
+    ): ResponseEntity<WrappedResponse<MapPointWithPhotos>> {
         return try {
             val editedMapPoint = mapPointService.editMapPoint(data, changedPhotosNumber = { lastNumber ->
                 lastNumber - (deletedPhotos?.size ?: 0) + (photos?.size ?: 0)
@@ -67,27 +67,27 @@ class MapPointController(
                 photosResponse = pointPhotoService.addNewToMapPointId(editedMapPoint.id, photos)
             }
 
-            val response = MapPointWithPhotos(
-                editedMapPoint, photosResponse
+            val response = WrappedResponse(
+                data = MapPointWithPhotos(editedMapPoint, photosResponse)
             )
 
             ResponseEntity.ok(response)
         } catch (e: Exception) {
             println(e.message)
-            ResponseEntity.badRequest().body(null)
+            ResponseEntity.badRequest().body(WrappedResponse(message = "Can't edit map point"))
         }
     }
 
     @DeleteMapping("/{mapPointId}")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR')")
-    fun deleteMapPoint(@PathVariable mapPointId: Int): ResponseEntity<String> {
+    fun deleteMapPoint(@PathVariable mapPointId: Int): ResponseEntity<WrappedResponse<String>> {
         return try {
             pointPhotoService.deleteAllByMapPointId(mapPointId)
             mapPointService.deleteMapPointById(mapPointId)
-            ResponseEntity.ok("Successfully deleted map point")
+            ResponseEntity.ok(WrappedResponse(data = "Successfully deleted map point"))
         } catch (e: Exception) {
             println(e.message)
-            ResponseEntity.badRequest().body("Can't delete this mapPoint")
+            ResponseEntity.badRequest().body(WrappedResponse(message = "Can't delete this mapPoint"))
         }
     }
 

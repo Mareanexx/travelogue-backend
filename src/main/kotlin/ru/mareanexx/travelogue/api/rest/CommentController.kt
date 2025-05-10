@@ -3,6 +3,7 @@ package ru.mareanexx.travelogue.api.rest
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
+import ru.mareanexx.travelogue.api.response.WrappedResponse
 import ru.mareanexx.travelogue.domain.comment.CommentEntity
 import ru.mareanexx.travelogue.domain.comment.CommentService
 import ru.mareanexx.travelogue.domain.comment.dto.CommentResponse
@@ -19,7 +20,7 @@ class CommentController(
 ) {
     @PostMapping
     @PreAuthorize("hasRole('USER')")
-    fun addNew(@RequestBody newCommentRequest: NewCommentRequest): ResponseEntity<NewCommentResponse?> {
+    fun addNew(@RequestBody newCommentRequest: NewCommentRequest): ResponseEntity<WrappedResponse<NewCommentResponse>> {
         return try {
             val response = commentService.addNewComment(newCommentRequest)
 
@@ -31,21 +32,21 @@ class CommentController(
                 )
             )
 
-            ResponseEntity.ok(response)
+            ResponseEntity.ok(WrappedResponse(data = response))
         } catch (e: Exception) {
-            ResponseEntity.badRequest().body(null)
+            ResponseEntity.badRequest().body(WrappedResponse(message = "Can't add new comment"))
         }
     }
 
     @GetMapping
     @PreAuthorize("hasRole('USER')")
-    fun getAllByMapPointId(@RequestParam mapPointId: Int): ResponseEntity<List<CommentResponse>> {
+    fun getAllByMapPointId(@RequestParam mapPointId: Int): ResponseEntity<WrappedResponse<List<CommentResponse>>> {
         return try {
             val responseComments = commentService.getAllByMapPointIdForUser(mapPointId)
-            ResponseEntity.ok(responseComments)
+            ResponseEntity.ok(WrappedResponse(data = responseComments))
         } catch (e: Exception) {
             println(e.message)
-            ResponseEntity.badRequest().body(emptyList())
+            ResponseEntity.badRequest().body(WrappedResponse(message = "Can't get comments by map point id"))
         }
     }
 

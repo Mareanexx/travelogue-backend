@@ -96,7 +96,7 @@ CREATE TABLE point_photo (
 CREATE TABLE comment (
     id SERIAL PRIMARY KEY,
     text TEXT NOT NULL,
-    send_date TIMESTAMP NOT NULL DEFAULT now(),
+    send_date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     sender_profile_id INT NOT NULL,
     map_point_id INT NOT NULL,
     CONSTRAINT fk_profile_id FOREIGN KEY (sender_profile_id) REFERENCES profile(id) ON DELETE CASCADE,

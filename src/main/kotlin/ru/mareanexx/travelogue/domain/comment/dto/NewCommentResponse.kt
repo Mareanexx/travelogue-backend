@@ -1,9 +1,9 @@
 package ru.mareanexx.travelogue.domain.comment.dto
 
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
 
 data class NewCommentResponse(
     val id: Int,
     val text: String,
-    val sendDate: LocalDateTime
+    val sendDate: OffsetDateTime
 )

@@ -18,7 +18,7 @@ fun NewMapPointRequest.mapToMapPoint(
 )
 
 fun MapPointEntity.mapToResponse() = UserMapPoint(
-    id!!, longitude, latitude, name, description, likesNumber, commentsNumber, photosNumber, arrivalDate, tripId
+    id!!, longitude, latitude, name, description, likesNumber, commentsNumber, photosNumber, arrivalDate, tripId, false
 )
 
 fun MapPointEntity.copyChangedProperties(

@@ -48,10 +48,11 @@ class MapPointService(
 
     /**
      * Получить все map_points путешествия (своего или другого пользователя).
+     * @param authorId id профиля пользователя, который получает map points
      * @param tripId id путешествия пользователя, к которому будут получаться map_points
      */
-    fun getAllByTripId(tripId: Int): List<UserMapPoint> {
-        return mapPointRepository.findAllByTripIdForUser(tripId)
+    fun getAllByTripId(authorId: Int, tripId: Int): List<UserMapPoint> {
+        return mapPointRepository.findAllByTripIdForUser(authorId, tripId)
     }
 
     /**

@@ -14,7 +14,8 @@ data class UserMapPoint(
     val commentsNumber: Int,
     val photosNumber: Int,
     val arrivalDate: OffsetDateTime,
-    val tripId: Int
+    val tripId: Int,
+    val isLiked: Boolean
 )
 
 data class TripWithMapPoints(

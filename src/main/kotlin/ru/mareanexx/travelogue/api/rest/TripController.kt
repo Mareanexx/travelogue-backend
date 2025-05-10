@@ -28,13 +28,14 @@ class TripController(
     @GetMapping
     @PreAuthorize("hasRole('USER')")
     fun getTripWithMapPoints(
+        @RequestParam authorId: Int,
         @RequestParam tripId: Int
     ): ResponseEntity<WrappedResponse<TripWithMapPoints>> {
         return try {
             val trip = tripService.getTrip(tripId)
             trip.tagList = tagService.getAllByTripId(tripId)
-
-            val mapPoints = mapPointService.getAllByTripId(tripId)
+    
+            val mapPoints = mapPointService.getAllByTripId(authorId, tripId)
             val pointsPhotos = pointPhotoService.getAllByTripId(tripId)
             val mapPointsResponse: List<MapPointWithPhotos> = mapPoints.map { mapPoint ->
                 MapPointWithPhotos(mapPoint, pointsPhotos.filter { it.mapPointId == mapPoint.id })
@@ -72,13 +73,13 @@ class TripController(
 
     @DeleteMapping("/{tripId}")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR')")
-    fun deleteTrip(@PathVariable tripId: Int): ResponseEntity<String> {
+    fun deleteTrip(@PathVariable tripId: Int): ResponseEntity<WrappedResponse<String>> {
         return try {
             tripService.deleteTrip(tripId)
-            ResponseEntity.ok("Successfully deleted trip")
+            ResponseEntity.ok(WrappedResponse("Successfully deleted trip"))
         } catch (e: Exception) {
             println(e.message)
-            ResponseEntity.badRequest().body("Can't delete this trip")
+            ResponseEntity.badRequest().body(WrappedResponse("Can't delete this trip"))
         }
     }
 

@@ -1,6 +1,6 @@
 package ru.mareanexx.travelogue.domain.comment.dto
 
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
 
 /**
  * DTO для сохранения нового комментария к точке на карте.
@@ -10,5 +10,5 @@ data class NewCommentRequest(
     val senderProfileId: Int,
     val mapPointId: Int,
     val text: String,
-    val sendDate: LocalDateTime
+    val sendDate: OffsetDateTime
 )
