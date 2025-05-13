@@ -6,11 +6,14 @@ import ru.mareanexx.travelogue.domain.comment.dto.NewCommentRequest
 import ru.mareanexx.travelogue.domain.comment.dto.NewCommentResponse
 import ru.mareanexx.travelogue.domain.comment.mapper.mapToComment
 import ru.mareanexx.travelogue.domain.comment.mapper.mapToResponse
+import ru.mareanexx.travelogue.domain.map_point.MapPointRepository
+import ru.mareanexx.travelogue.support.exceptions.IncrementException
 import ru.mareanexx.travelogue.support.exceptions.WrongIdException
 
 @Service
 class CommentService(
-    private val commentRepository: CommentRepository
+    private val commentRepository: CommentRepository,
+    private val mapPointRepository: MapPointRepository
 ) {
     /**
      * Получение всех комментариев для отображения в деталях MapPoint
@@ -27,6 +30,10 @@ class CommentService(
      */
     fun addNewComment(newCommentRequest: NewCommentRequest): NewCommentResponse {
         val newComment = newCommentRequest.mapToComment()
+
+        val updatedRows = mapPointRepository.incrementCommentsNumber(newComment.mapPointId)
+        if (updatedRows == 0) throw IncrementException("Не удалось обновить comments_number у mapPoint с id=${newComment.mapPointId}")
+
         return commentRepository.save(newComment).mapToResponse()
     }
 
@@ -44,8 +51,11 @@ class CommentService(
      * @param commentId id удаляемого комментария
      */
     fun deleteByCommentId(commentId: Int) {
-        commentRepository.findById(commentId)
+        val comment = commentRepository.findById(commentId)
             .orElseThrow { WrongIdException("Не удалось найти comment по id") }
+
+        val updatedRows = mapPointRepository.decrementCommentsNumber(comment.mapPointId)
+        if (updatedRows == 0) throw IncrementException("Не удалось обновить comments_number у mapPoint с id=${comment.mapPointId}")
 
         commentRepository.deleteById(commentId)
     }

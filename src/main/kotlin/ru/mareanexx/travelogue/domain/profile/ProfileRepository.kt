@@ -15,6 +15,30 @@ import java.util.*
 
 @Repository
 interface ProfileRepository: CrudRepository<ProfileEntity, Int> {
+    @Modifying
+    @Query("UPDATE profile SET trips_number = trips_number + 1 WHERE id = :profileId")
+    fun incrementTripsNumber(@Param("profileId") profileId: Int): Int
+
+    @Modifying
+    @Query("UPDATE profile SET trips_number = trips_number - 1 WHERE id = :profileId")
+    fun decrementTripsNumber(@Param("profileId") profileId: Int): Int
+
+    @Modifying
+    @Query("UPDATE profile SET following_number = following_number + 1 WHERE id = :profileId")
+    fun incrementFollowingsNumber(@Param("profileId") profileId: Int): Int
+
+    @Modifying
+    @Query("UPDATE profile SET following_number = following_number - 1 WHERE id = :profileId")
+    fun decrementFollowingsNumber(@Param("profileId") profileId: Int): Int
+
+    @Modifying
+    @Query("UPDATE profile SET followers_number = followers_number + 1 WHERE id = :profileId")
+    fun incrementFollowersNumber(@Param("profileId") profileId: Int): Int
+
+    @Modifying
+    @Query("UPDATE profile SET followers_number = followers_number - 1 WHERE id = :profileId")
+    fun decrementFollowersNumber(@Param("profileId") profileId: Int): Int
+
     @Query("""
         SELECT pr.id, pr.avatar, pr.username, pr.bio,
             EXISTS (

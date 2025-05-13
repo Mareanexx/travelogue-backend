@@ -44,9 +44,12 @@ class LikesController(
 
     @DeleteMapping
     @PreAuthorize("hasRole('USER')")
-    fun deleteExisting(@RequestBody likeRequest: LikeRequest): ResponseEntity<WrappedResponse<String>> {
+    fun deleteExisting(
+        @RequestParam profileId: Int,
+        @RequestParam mapPointId: Int
+    ): ResponseEntity<WrappedResponse<String>> {
         return try {
-            val statusCode = likesService.deleteExisted(likeRequest)
+            val statusCode = likesService.deleteExisted(profileId, mapPointId)
             val response = WrappedResponse(
                 data = when (statusCode) {
                     SUCCESS -> "You successfully unliked map_point"

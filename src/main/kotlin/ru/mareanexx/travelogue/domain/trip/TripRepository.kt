@@ -1,5 +1,6 @@
 package ru.mareanexx.travelogue.domain.trip
 
+import org.springframework.data.jdbc.repository.query.Modifying
 import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
@@ -10,6 +11,13 @@ import ru.mareanexx.travelogue.domain.trip.dto.TrendingTrip
 
 @Repository
 interface TripRepository : CrudRepository<TripEntity, Int> {
+    @Modifying
+    @Query("UPDATE trip SET steps_number = steps_number + 1 WHERE id = :tripId")
+    fun incrementStepsNumber(@Param("tripId") tripId: Int): Int
+
+    @Modifying
+    @Query("UPDATE trip SET steps_number = steps_number - 1 WHERE id = :tripId")
+    fun decrementStepsNumber(@Param("tripId") tripId: Int): Int
 
     @Query("""
         SELECT tr.id, tr.cover_photo, tr.name, 

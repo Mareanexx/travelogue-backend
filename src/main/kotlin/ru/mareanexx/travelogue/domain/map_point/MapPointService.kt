@@ -1,11 +1,13 @@
 package ru.mareanexx.travelogue.domain.map_point
 
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import ru.mareanexx.travelogue.domain.map_point.dto.*
 import ru.mareanexx.travelogue.domain.map_point.mapper.copyChangedProperties
 import ru.mareanexx.travelogue.domain.map_point.mapper.mapToMapPoint
 import ru.mareanexx.travelogue.domain.map_point.mapper.mapToResponse
 import ru.mareanexx.travelogue.domain.trip.TripRepository
+import ru.mareanexx.travelogue.support.exceptions.IncrementException
 import ru.mareanexx.travelogue.support.exceptions.WrongIdException
 
 @Service
@@ -35,9 +37,13 @@ class MapPointService(
      * Для пользователя.
      * @param newMapPoint DTO запроса на добавление нового map_point
      */
+    @Transactional
     fun addNewToTrip(newMapPoint: NewMapPointRequest, photosNumber: Int): UserMapPoint {
         tripRepository.findById(newMapPoint.tripId)
             .orElseThrow { WrongIdException("Не удалось найти trip по данному tripId") }
+
+        val updatedRows = tripRepository.incrementStepsNumber(newMapPoint.tripId)
+        if (updatedRows == 0) throw IncrementException("Не удалось обновить steps_number у trip с id=${newMapPoint.tripId}")
 
         return mapPointRepository.save(newMapPoint.mapToMapPoint(photosNumber)).mapToResponse()
     }
@@ -98,10 +104,14 @@ class MapPointService(
      * Для пользователя и модератора.
      * @param mapPointId id удаляемого map_point
      */
+    @Transactional
     fun deleteMapPointById(mapPointId: Int) {
-        mapPointRepository.findById(mapPointId)
+        val mapPoint = mapPointRepository.findById(mapPointId)
             .orElseThrow { WrongIdException("Не удалось найти map_point по id") }
 
-        return mapPointRepository.deleteById(mapPointId)
+        val updatedRows = tripRepository.decrementStepsNumber(mapPoint.tripId)
+        if (updatedRows == 0) throw IncrementException("Не удалось обновить steps_number у trip с id=${mapPoint.tripId}")
+
+        return mapPointRepository.delete(mapPoint)
     }
 }

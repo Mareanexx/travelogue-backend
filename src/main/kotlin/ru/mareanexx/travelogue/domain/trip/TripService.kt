@@ -2,6 +2,7 @@ package ru.mareanexx.travelogue.domain.trip
 
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
 import ru.mareanexx.travelogue.domain.profile.ProfileRepository
 import ru.mareanexx.travelogue.domain.profile.dto.SearchTrip
@@ -9,6 +10,7 @@ import ru.mareanexx.travelogue.domain.trip.dto.*
 import ru.mareanexx.travelogue.domain.trip.mapper.copyChangedProperties
 import ru.mareanexx.travelogue.domain.trip.mapper.mapToResponse
 import ru.mareanexx.travelogue.domain.trip.mapper.mapToTrip
+import ru.mareanexx.travelogue.support.exceptions.IncrementException
 import ru.mareanexx.travelogue.support.exceptions.WrongIdException
 import ru.mareanexx.travelogue.support.utils.PhotoService
 import kotlin.jvm.optionals.getOrNull
@@ -57,6 +59,7 @@ class TripService(
      * @param newTripRequest DTO для нового путешествия
      * @param cover главная картинка путешествия
      */
+    @Transactional
     fun createNewTrip(newTripRequest: NewTripRequest, cover: MultipartFile): TripResponse {
         profileRepository.findById(newTripRequest.profileId)
             .orElseThrow { WrongIdException("Не удалось найти profile по profileId. Не удалось сохранить новый trip") }
@@ -64,6 +67,10 @@ class TripService(
         val coverPath = photoService.saveFile(cover, coversPath, COVER_PATH_MIDDLE)
 
         val newTrip = tripRepository.save(newTripRequest.mapToTrip(coverPath))
+
+        val updatedRows = profileRepository.incrementTripsNumber(newTripRequest.profileId)
+        if (updatedRows == 0) throw IncrementException("Не удалось обновить trips_number у профиля с id=${newTripRequest.profileId}")
+
         return newTrip.mapToResponse()
     }
 
@@ -73,11 +80,15 @@ class TripService(
      * @param deletedTripId id путешествия
      * @throws WrongIdException если не удалось найти путешествие по id
      */
+    @Transactional
     fun deleteTrip(deletedTripId: Int) {
         val deletedTrip = tripRepository.findById(deletedTripId)
             .orElseThrow { WrongIdException("Не удалось найти trip по данному tripId") }
 
         photoService.deleteFileIfExists(deletedTrip.coverPhoto)
+
+        val updatedRows = profileRepository.decrementTripsNumber(deletedTrip.profileId)
+        if (updatedRows == 0) throw IncrementException("Не удалось обновить trips_number у профиля с id=${deletedTrip.profileId}")
 
         tripRepository.delete(deletedTrip)
     }

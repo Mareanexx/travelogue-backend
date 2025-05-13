@@ -1,5 +1,6 @@
 package ru.mareanexx.travelogue.domain.map_point
 
+import org.springframework.data.jdbc.repository.query.Modifying
 import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
@@ -11,6 +12,22 @@ import ru.mareanexx.travelogue.domain.map_point.projection.MapPointWithPreviewPr
 
 @Repository
 interface MapPointRepository: CrudRepository<MapPointEntity, Int> {
+    @Modifying
+    @Query("UPDATE map_point SET comments_number = comments_number + 1 WHERE id = :mapPointId")
+    fun incrementCommentsNumber(@Param("mapPointId") mapPointId: Int): Int
+
+    @Modifying
+    @Query("UPDATE map_point SET comments_number = comments_number - 1 WHERE id = :mapPointId")
+    fun decrementCommentsNumber(@Param("mapPointId") mapPointId: Int): Int
+
+    @Modifying
+    @Query("UPDATE map_point SET likes_number = likes_number + 1 WHERE id = :mapPointId")
+    fun incrementLikesNumber(@Param("mapPointId") mapPointId: Int): Int
+
+    @Modifying
+    @Query("UPDATE map_point SET likes_number = likes_number - 1 WHERE id = :mapPointId")
+    fun decrementLikesNumber(@Param("mapPointId") mapPointId: Int): Int
+
     @Query("""
         SELECT id, name, description
         FROM "map_point"
