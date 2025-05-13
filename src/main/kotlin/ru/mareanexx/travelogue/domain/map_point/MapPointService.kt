@@ -13,6 +13,23 @@ class MapPointService(
     private val tripRepository: TripRepository,
     private val mapPointRepository: MapPointRepository
 ) {
+    fun getMapPointsGroupedByTripIds(tripIds: List<Int>): Map<Int, List<MapPointWithPhotoActivity>> {
+        return mapPointRepository.findAllWithPreviewPhotoByTripIds(tripIds)
+            .groupBy { it.tripId() }
+            .mapValues { (_, projections) ->
+                projections.map { p ->
+                    MapPointWithPhotoActivity(
+                        id = p.id(),
+                        longitude = p.longitude(),
+                        latitude = p.latitude(),
+                        arrivalDate = p.arrivalDate(),
+                        tripId = p.tripId(),
+                        previewPhotoPath = p.previewPhoto()
+                    )
+                }
+            }
+    }
+
     /**
      * Добавить новый map_point прикрепив к trip.
      * Для пользователя.

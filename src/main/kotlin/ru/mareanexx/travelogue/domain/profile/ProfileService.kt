@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile
 import ru.mareanexx.travelogue.domain.profile.dto.*
 import ru.mareanexx.travelogue.domain.profile.dto.fcm.UpdateTokenRequest
 import ru.mareanexx.travelogue.domain.profile.dto.stats.UpdatedProfileStatsResponse
+import ru.mareanexx.travelogue.domain.profile.dto.withTrips.OthersProfile
 import ru.mareanexx.travelogue.domain.profile.mapper.copyChangedProperties
 import ru.mareanexx.travelogue.domain.profile.mapper.mapToProfile
 import ru.mareanexx.travelogue.domain.user.UserRepository
@@ -115,8 +116,8 @@ class ProfileService(
      * Для пользователя.
      * @param profileId id профиля другого пользователя
      */
-    fun getOtherUserProfile(profileId: Int): ProfileDTO {
-        return profileRepository.findByProfileId(profileId)
+    fun getOtherUserProfile(authorId: Int, profileId: Int): OthersProfile {
+        return profileRepository.findByProfileId(authorId, profileId)
     }
 
     /**

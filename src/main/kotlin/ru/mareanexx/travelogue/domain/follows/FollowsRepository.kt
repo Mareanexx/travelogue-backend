@@ -12,58 +12,68 @@ class FollowsRepository(private val jdbcTemplate: JdbcTemplate) {
         return jdbcTemplate.update(sql, followsEntity.followerId, followsEntity.followingId, followsEntity.followedAt)
     }
 
+    fun countFollowings(authorId: Int): Int {
+        var result = 0
+        val sql = "SELECT COUNT(*) AS followingsNumber FROM follows WHERE follower_id = ?"
+        jdbcTemplate.query(sql, arrayOf(authorId)) {
+            println("Кароче нашли что followingsNumber = ${it.getInt("followingsNumber")}")
+            result = it.getInt("followingsNumber")
+        }
+        return result
+    }
+
     fun deleteByFollows(followerId: Int, followingId: Int): Int {
         val sql = "DELETE FROM follows WHERE follower_id = ? AND following_id = ?"
         return jdbcTemplate.update(sql, followerId, followingId)
     }
 
-    fun findFollowersAndFollowings(profileId: Int): FollowersAndFollowingsResponse {
-        // запрос для получения подписчиков пользователя
+    fun findFollowersAndFollowings(authorId: Int, othersId: Int): FollowersAndFollowingsResponse {
+        val authorFollowingsSql = """
+        SELECT following_id FROM follows WHERE follower_id = ?
+    """
+        val authorFollowingIds: Set<Int> = jdbcTemplate.queryForList(
+            authorFollowingsSql, arrayOf(authorId), Int::class.java
+        ).toSet()
+
         val followersSql = """
-            SELECT p.id, p.username, p.avatar, p.bio
-            FROM profile p
-            JOIN follows f ON f.follower_id = p.id
-            WHERE f.following_id = ?
-        """
+        SELECT p.id, p.username, p.avatar, p.bio
+        FROM profile p
+        JOIN follows f ON f.follower_id = p.id
+        WHERE f.following_id = ?
+    """
         val followers = jdbcTemplate.query(
             followersSql,
-            arrayOf(profileId)
+            arrayOf(othersId)
         ) { rs, _ ->
             Follows(
                 id = rs.getInt("id"),
                 username = rs.getString("username"),
                 avatar = rs.getString("avatar"),
-                bio = rs.getString("bio")
+                bio = rs.getString("bio"),
+                isFollowing = authorFollowingIds.contains(rs.getInt("id"))
             )
         }
 
-        // запрос для получения всех подписок пользователя
         val followingsSql = """
-            SELECT p.id, p.username, p.avatar, p.bio
-            FROM profile p
-            JOIN follows f ON f.following_id = p.id
-            WHERE f.follower_id = ?
-        """
+        SELECT p.id, p.username, p.avatar, p.bio
+        FROM profile p
+        JOIN follows f ON f.following_id = p.id
+        WHERE f.follower_id = ?
+    """
         val followings = jdbcTemplate.query(
             followingsSql,
-            arrayOf(profileId)
+            arrayOf(othersId)
         ) { rs, _ ->
             Follows(
                 id = rs.getInt("id"),
                 username = rs.getString("username"),
                 avatar = rs.getString("avatar"),
-                bio = rs.getString("bio")
+                bio = rs.getString("bio"),
+                isFollowing = authorFollowingIds.contains(rs.getInt("id"))
             )
         }
 
-        val followingIds = followings.map { it.id }.toSet()
-
-        val updatedFollowers = followers.map { follower ->
-            follower.copy(
-                isFollowingBack = followingIds.contains(follower.id)
-            )
-        }
-
-        return FollowersAndFollowingsResponse(followers = updatedFollowers, followings = followings)
+        return FollowersAndFollowingsResponse(followers = followers, followings = followings)
     }
+
 }

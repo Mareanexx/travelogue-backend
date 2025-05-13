@@ -56,21 +56,24 @@ class ProfileController(
         }
     }
 
-    @GetMapping("/other/{profileId}")
+    @GetMapping("/other")
     @PreAuthorize("hasRole('USER')")
-    fun getOtherUsersProfile(@PathVariable profileId: Int): ResponseEntity<UserProfileResponse?> {
+    fun getOtherUsersProfile(
+        @RequestParam othersId: Int,
+        @RequestParam authorId: Int
+    ): ResponseEntity<WrappedResponse<UserProfileResponse>> {
         return try {
-            val userProfile = profileService.getOtherUserProfile(profileId)
-            val userTrips = tripService.getAllPublicOthersTrips(profileId)
+            val userProfile = profileService.getOtherUserProfile(authorId, othersId)
+            val userTrips = tripService.getAllPublicOthersTrips(othersId)
 
             val response = UserProfileResponse(
                 profile = userProfile,
                 trips = userTrips
             )
 
-            ResponseEntity.ok(response)
+            ResponseEntity.ok(WrappedResponse(data = response))
         } catch (e: Exception) {
-            ResponseEntity.badRequest().body(null)
+            ResponseEntity.badRequest().body(WrappedResponse(message = "Can't get others profile"))
         }
     }
 

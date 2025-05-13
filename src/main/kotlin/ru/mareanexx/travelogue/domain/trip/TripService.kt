@@ -105,17 +105,18 @@ class TripService(
 
     /**
      * Получить все trip по определенному тегу
-     * @param tripByTag DTO с profileId (тот кто ищет записи) и tagName
+     * @param tagName имя тега
+     * @param finderId id профиля пользователя, который автор запроса
      */
-    fun getAllByTag(tripByTag: TripByTagRequest): List<TripByTag> {
-        return tripRepository.findAllByTag(tripByTag.tagName, tripByTag.finderId)
+    fun getAllByTag(tagName: String, finderId: Int): List<TrendingTrip> {
+        return tripRepository.findAllByTag(tagName, finderId)
     }
 
     /**
      * Получить все public путешествия другого пользователя.
      * @param profileId id профиля другого пользователя
      */
-    fun getAllPublicOthersTrips(profileId: Int): List<UserTrip> {
+    fun getAllPublicOthersTrips(profileId: Int): List<AuthorTrip> {
         return tripRepository.findByProfileIdFilterByStatus(profileId)
     }
 
@@ -124,7 +125,7 @@ class TripService(
      * Для пользователя.
      * @param userProfile id пользователя, который делает запрос активности
      */
-    fun getAllFollowingsCurrentTrips(userProfile: Int): List<ActiveFollowingTrip> {
+    fun getAllFollowingsCurrentTrips(userProfile: Int): List<TrendingTrip> {
         return tripRepository.findAllByStatusAndFollowerId(userProfile)
     }
 

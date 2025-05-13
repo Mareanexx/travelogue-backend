@@ -1,9 +1,21 @@
 package ru.mareanexx.travelogue.domain.profile.dto.withTrips
 
-import ru.mareanexx.travelogue.domain.profile.dto.ProfileDTO
-import ru.mareanexx.travelogue.domain.trip.dto.UserTrip
+import ru.mareanexx.travelogue.domain.trip.dto.AuthorTrip
 
 data class UserProfileResponse(
-    val profile: ProfileDTO,
-    val trips: List<UserTrip>
+    val profile: OthersProfile,
+    val trips: List<AuthorTrip>
+)
+
+data class OthersProfile(
+    val id: Int,
+    val username: String,
+    val fullName: String,
+    val bio: String,
+    val avatar: String?,
+    val coverPhoto: String?,
+    val followersNumber: Int,
+    val followingNumber: Int,
+    val tripsNumber: Int,
+    val isFollowing: Boolean
 )

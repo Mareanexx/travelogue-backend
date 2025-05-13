@@ -10,6 +10,7 @@ import ru.mareanexx.travelogue.domain.profile.dto.InspiringProfileResponse
 import ru.mareanexx.travelogue.domain.profile.dto.ProfileDTO
 import ru.mareanexx.travelogue.domain.profile.dto.SearchProfile
 import ru.mareanexx.travelogue.domain.profile.dto.stats.UpdatedProfileStatsResponse
+import ru.mareanexx.travelogue.domain.profile.dto.withTrips.OthersProfile
 import java.util.*
 
 @Repository
@@ -49,11 +50,19 @@ interface ProfileRepository: CrudRepository<ProfileEntity, Int> {
 
     @Query("""
         SELECT id, username, full_name, bio, avatar, cover_photo,
-        followers_number, following_number, trips_number
+        followers_number, following_number, trips_number,
+            EXISTS (
+               SELECT 1
+               FROM follows f
+               WHERE f.follower_id = :authorId AND f.following_id = :profileId
+            ) AS is_following
         FROM profile
         WHERE id = :profileId
     """)
-    fun findByProfileId(@Param("profileId") profileId: Int): ProfileDTO
+    fun findByProfileId(
+        @Param("authorId") authorId: Int,
+        @Param("profileId") profileId: Int
+    ): OthersProfile
 
     @Query("""
         SELECT p.id, p.username, p.bio, p.avatar, p.cover_photo, 

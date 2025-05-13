@@ -18,9 +18,12 @@ class FollowsController(
 ) {
     @GetMapping
     @PreAuthorize("hasRole('USER')")
-    fun getAllFollowersAndFollowings(@RequestParam profileId: Int): ResponseEntity<WrappedResponse<FollowersAndFollowingsResponse>> {
+    fun getAllFollowersAndFollowings(
+        @RequestParam authorId: Int,
+        @RequestParam othersId: Int
+    ): ResponseEntity<WrappedResponse<FollowersAndFollowingsResponse>> {
         return try {
-            val response = followsService.getFollowersAndFollowings(profileId)
+            val response = followsService.getFollowersAndFollowings(authorId, othersId)
             ResponseEntity.ok(WrappedResponse(
                 data = response
             ))

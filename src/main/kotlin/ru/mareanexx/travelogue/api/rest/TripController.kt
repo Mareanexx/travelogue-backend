@@ -6,6 +6,7 @@ import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import ru.mareanexx.travelogue.api.response.WrappedResponse
+import ru.mareanexx.travelogue.domain.follows.FollowsService
 import ru.mareanexx.travelogue.domain.map_point.MapPointService
 import ru.mareanexx.travelogue.domain.map_point.dto.MapPointWithPhotos
 import ru.mareanexx.travelogue.domain.map_point.dto.TripWithMapPoints
@@ -19,6 +20,7 @@ import ru.mareanexx.travelogue.domain.trip.dto.*
 @RestController
 @RequestMapping("/api/v1/trips")
 class TripController(
+    private val followsService: FollowsService,
     private val tripService: TripService,
     private val tagService: TagService,
     private val mapPointService: MapPointService,
@@ -109,25 +111,53 @@ class TripController(
 
     @GetMapping("/tagged")
     @PreAuthorize("hasRole('USER')")
-    fun getAllByTag(@RequestBody tripByTag: TripByTagRequest): ResponseEntity<List<TripByTag>> {
+    fun getAllByTag(
+        @RequestParam finderId: Int,
+        @RequestParam tagName: String
+    ): ResponseEntity<WrappedResponse<List<TrendingTrip>>> {
         return try {
-            val trips = tripService.getAllByTag(tripByTag)
-            ResponseEntity.ok(trips)
+            val trips = tripService.getAllByTag(tagName, finderId)
+            ResponseEntity.ok(WrappedResponse(data = trips))
         } catch (e: Exception) {
             println(e.message)
-            ResponseEntity.badRequest().body(emptyList())
+            ResponseEntity.badRequest().body(WrappedResponse(message = "Can't get trips by tag"))
         }
     }
 
     @GetMapping("/activity")
     @PreAuthorize("hasRole('USER')")
-    fun getAllFollowingsCurrent(@RequestParam authorId: Int): ResponseEntity<List<ActiveFollowingTrip>> {
+    fun getAllFollowingsCurrent(@RequestParam authorId: Int): ResponseEntity<WrappedResponse<List<TrendingTripWithPoints>>> {
         return try {
-            val currentTrips = tripService.getAllFollowingsCurrentTrips(authorId)
-            ResponseEntity.ok(currentTrips)
+            val followingsNumber = followsService.checkFollowings(authorId)
+            if (followingsNumber == 0) {
+                ResponseEntity.noContent().build()
+            } else {
+                val trips = tripService.getAllFollowingsCurrentTrips(authorId)
+
+                val tripIds = trips.map { it.id }
+                val mapPointsByTripId = mapPointService.getMapPointsGroupedByTripIds(tripIds)
+
+                val responseData = trips.map { trip ->
+                    TrendingTripWithPoints(
+                        id = trip.id,
+                        name = trip.name,
+                        startDate = trip.startDate,
+                        stepsNumber = trip.stepsNumber,
+                        daysNumber = trip.daysNumber,
+                        status = trip.status,
+                        coverPhoto = trip.coverPhoto,
+                        profileId = trip.profileId,
+                        username = trip.username,
+                        avatar = trip.avatar,
+                        mapPoints = mapPointsByTripId[trip.id] ?: emptyList()
+                    )
+                }
+
+                ResponseEntity.ok(WrappedResponse(data = responseData))
+            }
         } catch (e: Exception) {
             println(e.message)
-            ResponseEntity.badRequest().body(emptyList())
+            ResponseEntity.badRequest().body(WrappedResponse(message = "Can't get activity"))
         }
     }
 }

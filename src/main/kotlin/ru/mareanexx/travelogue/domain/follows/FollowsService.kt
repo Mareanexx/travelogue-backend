@@ -48,12 +48,21 @@ class FollowsService(
     /**
      * Получить всех своих подписчиков и тех, на кого подписан сам.
      * Для пользователя.
-     * @param profileId id профиля пользователя, который получает данные
+     * @param authorId id профиля пользователя, который отправляет запрос
+     * @param othersId id профиля пользователя, у которого нужно найти подписки
      */
-    fun getFollowersAndFollowings(profileId: Int): FollowersAndFollowingsResponse {
-        profileRepository.findById(profileId)
+    fun getFollowersAndFollowings(authorId: Int, othersId: Int): FollowersAndFollowingsResponse {
+        profileRepository.findById(othersId)
             .orElseThrow { WrongIdException("Профиль с таким ID не найден") }
 
-        return followsRepository.findFollowersAndFollowings(profileId)
+        return followsRepository.findFollowersAndFollowings(authorId, othersId)
+    }
+
+    /**
+     * Проверить есть ли подписки у пользователя.
+     * @param authorId id профиля автора запроса
+     */
+    fun checkFollowings(authorId: Int): Int {
+        return followsRepository.countFollowings(authorId)
     }
 }

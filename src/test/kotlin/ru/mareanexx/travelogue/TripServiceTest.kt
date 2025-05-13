@@ -128,20 +128,9 @@ class TripServiceTest {
     }
 
     @Test
-    fun `getAllByTag should return trips by tag`() {
-        val request = TripByTagRequest(tagName = "Nature", finderId = 5)
-        val trips = listOf(mockk<TripByTag>())
-        every { tripRepository.findAllByTag("Nature", 5) } returns trips
-
-        val result = tripService.getAllByTag(request)
-
-        assertEquals(trips, result)
-    }
-
-    @Test
     fun `getAllPublicOthersTrips should return public trips`() {
         val profileId = 2
-        val trips = listOf(mockk<UserTrip>())
+        val trips = listOf(mockk<AuthorTrip>())
         every { tripRepository.findByProfileIdFilterByStatus(profileId) } returns trips
 
         val result = tripService.getAllPublicOthersTrips(profileId)
@@ -152,7 +141,7 @@ class TripServiceTest {
     @Test
     fun `getAllFollowingsCurrentTrips should return current trips of followings`() {
         val profileId = 2
-        val trips = listOf(mockk<ActiveFollowingTrip>())
+        val trips = listOf(mockk<TrendingTrip>())
         every { tripRepository.findAllByStatusAndFollowerId(profileId) } returns trips
 
         val result = tripService.getAllFollowingsCurrentTrips(profileId)

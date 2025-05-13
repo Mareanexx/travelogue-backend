@@ -5,5 +5,5 @@ data class Follows(
     val username: String,
     val avatar: String?,
     val bio: String,
-    val isFollowingBack: Boolean = false
+    val isFollowing: Boolean = false
 )
