@@ -1,5 +1,6 @@
 package ru.mareanexx.travelogue.api.rest
 
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
@@ -79,14 +80,14 @@ class UserController(
 
     @PostMapping
     @PreAuthorize("hasRole('ADMINISTRATOR')")
-    fun addNewUserAnyRole(@RequestBody newUserRequest: NewUserRequest): ResponseEntity<Map<String, String>> {
+    fun addNewUserAnyRole(@Valid @RequestBody newUserRequest: NewUserRequest): ResponseEntity<WrappedResponse<String>> {
         return try {
             val newUserUUID = userService.addNewUser(newUserRequest)
-            ResponseEntity(mapOf("uuid" to newUserUUID.toString()) , HttpStatus.CREATED)
+            ResponseEntity(WrappedResponse(data = newUserUUID.toString()) , HttpStatus.CREATED)
         } catch (e: EmailAlreadyExistsException) {
-            ResponseEntity.badRequest().body(mapOf("error" to "User with such email already exists"))
+            ResponseEntity.badRequest().body(WrappedResponse(message = "User with such email already exists"))
         } catch (e: Exception) {
-            ResponseEntity.badRequest().body(mapOf("error" to "Can't add new user"))
+            ResponseEntity.badRequest().body(WrappedResponse(message = "Can't add new user"))
         }
     }
 

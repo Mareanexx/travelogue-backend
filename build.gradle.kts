@@ -32,6 +32,10 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 
+	// validation
+	implementation("jakarta.validation:jakarta.validation-api:3.1.0")
+	implementation("org.hibernate.validator:hibernate-validator:8.0.0.Final")
+
 	// jwt
 	implementation("io.jsonwebtoken:jjwt-api:0.11.5")
 	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")

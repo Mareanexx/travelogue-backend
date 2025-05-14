@@ -1,5 +1,6 @@
 package ru.mareanexx.travelogue.api.rest
 
+import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -18,7 +19,7 @@ class AuthController(
     private val authService: AuthService
 ) {
     @PostMapping("/register")
-    fun register(@RequestBody request: RegisterRequest): ResponseEntity<WrappedResponse<AuthResponse>> {
+    fun register(@Valid @RequestBody request: RegisterRequest): ResponseEntity<WrappedResponse<AuthResponse>> {
         return try {
             val registerResponse = authService.register(request)
             ResponseEntity.ok(WrappedResponse(
@@ -33,7 +34,7 @@ class AuthController(
     }
 
     @PostMapping("/login")
-    fun login(@RequestBody request: LoginRequest): ResponseEntity<WrappedResponse<AuthResponse>> {
+    fun login(@Valid @RequestBody request: LoginRequest): ResponseEntity<WrappedResponse<AuthResponse>> {
         return try {
             val authResponse = authService.authenticate(request)
             ResponseEntity.ok(WrappedResponse(
