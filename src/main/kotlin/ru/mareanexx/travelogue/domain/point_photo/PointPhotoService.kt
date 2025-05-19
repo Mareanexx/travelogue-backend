@@ -64,6 +64,14 @@ class PointPhotoService(
     }
 
     /**
+     * Получить все по map point id
+     * @param mapPointId id точки на карте
+     */
+    fun getAllByMapPointId(mapPointId: Int): List<PointPhotoDto> {
+        return pointPhotoRepository.findAllByMapPointId(mapPointId).map { PointPhotoDto(it.id!!, it.filePath, it.mapPointId) }
+    }
+
+    /**
      * Получить все point_photos для каждого map_point путешествия
      * @param tripId id путешествия
      */

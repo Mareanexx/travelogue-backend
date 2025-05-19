@@ -9,6 +9,8 @@ import ru.mareanexx.travelogue.domain.point_photo.dto.PointPhotoDto
 
 @Repository
 interface PointPhotoRepository: CrudRepository<PointPhotoEntity, Int> {
+
+    fun findAllByMapPointId(mapPointId: Int): List<PointPhotoEntity>
     @Query("""
         SELECT ph.id, ph.file_path, ph.map_point_id
         FROM point_photo ph

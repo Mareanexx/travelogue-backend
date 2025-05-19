@@ -62,10 +62,9 @@ class MapPointController(
             if (deletedPhotos != null) {
                 pointPhotoService.deletePhotosByFilePath(deletedPhotos)
             }
-            var photosResponse: List<PointPhotoDto> = emptyList()
-            if (photos != null) {
-                photosResponse = pointPhotoService.addNewToMapPointId(editedMapPoint.id, photos)
-            }
+
+            if (photos != null) { pointPhotoService.addNewToMapPointId(editedMapPoint.id, photos) }
+            val photosResponse: List<PointPhotoDto> = pointPhotoService.getAllByMapPointId(editedMapPoint.id)
 
             val response = WrappedResponse(
                 data = MapPointWithPhotos(editedMapPoint, photosResponse)
