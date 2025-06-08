@@ -1,9 +1,12 @@
 package ru.mareanexx.travelogue.domain.trip.mapper
 
+import ru.mareanexx.travelogue.domain.profile.dto.withTrips.AuthorTrip
+import ru.mareanexx.travelogue.domain.tags.dto.TagResponse
 import ru.mareanexx.travelogue.domain.trip.TripEntity
 import ru.mareanexx.travelogue.domain.trip.dto.EditTripRequest
 import ru.mareanexx.travelogue.domain.trip.dto.NewTripRequest
 import ru.mareanexx.travelogue.domain.trip.dto.TripResponse
+import ru.mareanexx.travelogue.domain.trip.dto.TripWithoutTags
 
 fun NewTripRequest.mapToTrip(
     coverPath: String
@@ -45,4 +48,19 @@ fun TripEntity.mapToResponse() = TripResponse(
     status = status,
     coverPhoto = coverPhoto,
     profileId = profileId
+)
+
+fun TripWithoutTags.toAuthorTrip(profileId: Int, tagList: List<TagResponse>) = AuthorTrip(
+    id = id,
+    name = name,
+    description = description,
+    startDate = startDate,
+    endDate = endDate,
+    stepsNumber = stepsNumber,
+    daysNumber = daysNumber,
+    type = type,
+    status = status,
+    coverPhoto = coverPhoto,
+    profileId = profileId,
+    tagList = tagList
 )

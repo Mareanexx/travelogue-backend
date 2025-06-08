@@ -127,21 +127,3 @@ CREATE TABLE notifications (
     CONSTRAINT fk_notif_map_point FOREIGN KEY (related_point_id) REFERENCES map_point(id) ON DELETE CASCADE,
     CONSTRAINT fk_notif_comment FOREIGN KEY (related_comment_id) REFERENCES comment(id) ON DELETE CASCADE
 );
-
-
--- ЗАПРОСЫ ДАЛЬШЕ ХЗ МБ НЕ РАБОТАЮТ
-INSERT INTO profile (username, full_name, bio, avatar, cover_photo, followers_number, following_number, trips_number, user_uuid)
-VALUES
-    ('john_doe', 'John Doe', 'Bio for John Doe', NULL, NULL, 0, 0, 0, 'a933fc75-d696-439a-88c2-bf4f5066e620'),
-    ('jane_doe', 'Jane Doe', 'Bio for Jane Doe', NULL, NULL, 0, 0, 0, 'def644c2-f299-4432-88d4-41100e91ccc1'),
-    ('alice_smith', 'Alice Smith', 'Bio for Alice Smith', NULL, NULL, 0, 0, 0, 'b9868325-d4b0-4b02-bbe0-8b514c891092');
-
-
-INSERT INTO follows (follower_id, following_id, followed_at)
-VALUES
-    (1, 2, NOW()),  -- John Doe подписан на Jane Doe
-    (2, 1, NOW()),  -- Jane Doe подписан на John Doe
-    (2, 3, NOW()),  -- Jane Doe подписан на Alice Smith
-    (3, 2, NOW()),  -- Alice Smith подписан на Jane Doe
-    (3, 1, NOW()),  -- Alice Smith подписан на John Doe
-    (1, 3, NOW());  -- John Doe подписан на Alice Smith

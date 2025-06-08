@@ -11,6 +11,13 @@ import ru.mareanexx.travelogue.domain.tags.dto.TopTag
 
 @Repository
 interface TagsRepository : CrudRepository<TagsEntity, Int> {
+    @Query("""
+        SELECT *
+        FROM tags
+        WHERE trip_id IN (:tripIds)
+    """)
+    fun findAllByTripIds(@Param("tripIds") tripIds: List<Int>): List<TagsEntity>
+
     @Modifying
     @Transactional
     @Query("""

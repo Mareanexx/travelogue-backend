@@ -1,10 +1,10 @@
 package ru.mareanexx.travelogue.domain.profile.dto.withTrips
 
-import ru.mareanexx.travelogue.domain.trip.dto.AuthorTrip
+import ru.mareanexx.travelogue.domain.trip.dto.TripWithoutTags
 
 data class UserProfileResponse(
     val profile: OthersProfile,
-    val trips: List<AuthorTrip>
+    val trips: List<TripWithoutTags>
 )
 
 data class OthersProfile(

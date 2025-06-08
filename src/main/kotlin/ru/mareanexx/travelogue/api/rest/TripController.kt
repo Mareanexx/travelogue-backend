@@ -156,7 +156,6 @@ class TripController(
                 ResponseEntity.ok(WrappedResponse(data = responseData))
             }
         } catch (e: Exception) {
-            println(e.message)
             ResponseEntity.badRequest().body(WrappedResponse(message = "Can't get activity"))
         }
     }

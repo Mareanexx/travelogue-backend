@@ -6,8 +6,8 @@ import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 import ru.mareanexx.travelogue.domain.profile.dto.SearchTrip
-import ru.mareanexx.travelogue.domain.trip.dto.AuthorTrip
 import ru.mareanexx.travelogue.domain.trip.dto.TrendingTrip
+import ru.mareanexx.travelogue.domain.trip.dto.TripWithoutTags
 
 @Repository
 interface TripRepository : CrudRepository<TripEntity, Int> {
@@ -24,7 +24,7 @@ interface TripRepository : CrudRepository<TripEntity, Int> {
             pr.id AS profile_id, pr.avatar, pr.username 
         FROM trip tr
         JOIN profile pr ON tr.profile_id = pr.id
-        WHERE tr.name ILIKE '%' || :query || '%' AND pr.id != :authorId
+        WHERE (tr.name ILIKE '%' || :query || '%' OR tr.description ILIKE '%' || :query || '%') AND pr.id != :authorId
     """)
     fun findAllMatches(
         @Param("authorId") authorId: Int,
@@ -37,7 +37,7 @@ interface TripRepository : CrudRepository<TripEntity, Int> {
         FROM "trip"
         WHERE profile_id = :authorId
     """)
-    fun findAllByAuthorProfileId(@Param("authorId") authorId: Int): List<AuthorTrip>
+    fun findAllByAuthorProfileId(@Param("authorId") authorId: Int): List<TripWithoutTags>
 
     @Query("""
         SELECT id, name, description, start_date, end_date, steps_number,
@@ -45,7 +45,7 @@ interface TripRepository : CrudRepository<TripEntity, Int> {
         FROM "trip"
         WHERE profile_id = :profileId AND type = 'Public'
     """)
-    fun findByProfileIdFilterByStatus(@Param("profileId") profileId: Int): List<AuthorTrip>
+    fun findByProfileIdFilterByStatus(@Param("profileId") profileId: Int): List<TripWithoutTags>
 
     @Query("""
         SELECT tr.id, tr.name, tr.start_date,

@@ -44,4 +44,12 @@ class TagService(
     fun getTop(): List<TopTag> {
         return tagsRepository.findTopEight()
     }
+
+    /**
+     * Получить все теги для всех путешествий по их id.
+     * @param tripIds список id всех путешествий
+     */
+    fun getAllByTripIds(tripIds: List<Int>): List<TagsEntity> {
+        return tagsRepository.findAllByTripIds(tripIds)
+    }
 }

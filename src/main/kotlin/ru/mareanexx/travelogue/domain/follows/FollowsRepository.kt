@@ -12,6 +12,15 @@ class FollowsRepository(private val jdbcTemplate: JdbcTemplate) {
         return jdbcTemplate.update(sql, followsEntity.followerId, followsEntity.followingId, followsEntity.followedAt)
     }
 
+    fun saveAll(followsEntities: List<FollowsEntity>) {
+        val sql = "INSERT INTO follows (follower_id, following_id, followed_at) VALUES (?, ?, ?)"
+        jdbcTemplate.batchUpdate(sql, followsEntities, followsEntities.size) { ps, entity ->
+            ps.setInt(1, entity.followerId)
+            ps.setInt(2, entity.followingId)
+            ps.setObject(3, entity.followedAt)
+        }
+    }
+
     fun countFollowings(authorId: Int): Int {
         var result = 0
         val sql = "SELECT COUNT(*) AS followingsNumber FROM follows WHERE follower_id = ?"

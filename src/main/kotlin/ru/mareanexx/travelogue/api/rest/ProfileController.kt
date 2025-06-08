@@ -15,7 +15,10 @@ import ru.mareanexx.travelogue.domain.profile.dto.fcm.UpdateTokenRequest
 import ru.mareanexx.travelogue.domain.profile.dto.stats.UpdatedProfileStatsResponse
 import ru.mareanexx.travelogue.domain.profile.dto.withTrips.AuthorProfileResponse
 import ru.mareanexx.travelogue.domain.profile.dto.withTrips.UserProfileResponse
+import ru.mareanexx.travelogue.domain.tags.TagService
+import ru.mareanexx.travelogue.domain.tags.dto.TagResponse
 import ru.mareanexx.travelogue.domain.trip.TripService
+import ru.mareanexx.travelogue.domain.trip.mapper.toAuthorTrip
 import ru.mareanexx.travelogue.support.exceptions.WrongIdException
 import java.util.*
 
@@ -23,7 +26,8 @@ import java.util.*
 @RequestMapping("/api/v1/profile")
 class ProfileController(
     private val profileService: ProfileService,
-    private val tripService: TripService
+    private val tripService: TripService,
+    private val tagService: TagService
 ) {
     @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     @PreAuthorize("hasRole('USER')")
@@ -45,7 +49,20 @@ class ProfileController(
         return try {
             val authorProfile = profileService.getAuthorsProfile(authorUuid)
             val trips = tripService.getAuthorsTrips(authorProfile.id)
-            val profile = AuthorProfileResponse(profile = authorProfile, trips = trips)
+
+            val tripIds = trips.map { it.id }
+            val tags = tagService.getAllByTripIds(tripIds)
+
+            val tagsByTripId: Map<Int, List<TagResponse>> = tags.groupBy(
+                { it.tripId },
+                { TagResponse(id = it.id!!, name = it.name) }
+            )
+
+            val tripsWithTags = trips.map { trip ->
+                trip.toAuthorTrip(authorProfile.id, tagList = tagsByTripId[trip.id] ?: emptyList())
+            }
+
+            val profile = AuthorProfileResponse(profile = authorProfile, trips = tripsWithTags)
 
             ResponseEntity.ok(WrappedResponse(
                 message = "Profile was found",

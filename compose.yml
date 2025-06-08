@@ -1,16 +1,34 @@
 version: "3.9"
 
 services:
-  postgres:
-    image: 'postgres:16'
+  backend:
+    build: .
+    container_name: travelogue-backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    volumes:
+      - ./uploads:/app/uploads
     environment:
-      - 'POSTGRES_DB=travelogue'
-      - 'POSTGRES_PASSWORD=postgres'
-      - 'POSTGRES_USER=postgres'
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/travelogue
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_PROFILES_ACTIVE: prod
+    restart: always
+
+  db:
+    image: postgres:16
+    container_name: travelogue-db
+    environment:
+      POSTGRES_DB: travelogue
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-    volumes:
-      - postgresql:/var/lib/postgresql/
+    restart: always
 
 volumes:
-  postgresql: { }
+  db-data:

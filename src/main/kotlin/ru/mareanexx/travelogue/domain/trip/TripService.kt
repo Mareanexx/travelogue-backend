@@ -40,7 +40,7 @@ class TripService(
      * Данные идут для заполнения профиля.
      * @param authorId id профиля пользователя инициатора запроса
      */
-    fun getAuthorsTrips(authorId: Int): List<AuthorTrip> {
+    fun getAuthorsTrips(authorId: Int): List<TripWithoutTags> {
         return tripRepository.findAllByAuthorProfileId(authorId)
     }
 
@@ -127,7 +127,7 @@ class TripService(
      * Получить все public путешествия другого пользователя.
      * @param profileId id профиля другого пользователя
      */
-    fun getAllPublicOthersTrips(profileId: Int): List<AuthorTrip> {
+    fun getAllPublicOthersTrips(profileId: Int): List<TripWithoutTags> {
         return tripRepository.findByProfileIdFilterByStatus(profileId)
     }
 

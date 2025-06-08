@@ -17,16 +17,16 @@ class MapPointService(
 ) {
     fun getMapPointsGroupedByTripIds(tripIds: List<Int>): Map<Int, List<MapPointWithPhotoActivity>> {
         return mapPointRepository.findAllWithPreviewPhotoByTripIds(tripIds)
-            .groupBy { it.tripId() }
+            .groupBy { it.tripId }
             .mapValues { (_, projections) ->
                 projections.map { p ->
                     MapPointWithPhotoActivity(
-                        id = p.id(),
-                        longitude = p.longitude(),
-                        latitude = p.latitude(),
-                        arrivalDate = p.arrivalDate(),
-                        tripId = p.tripId(),
-                        previewPhotoPath = p.previewPhoto()
+                        id = p.id,
+                        longitude = p.longitude,
+                        latitude = p.latitude,
+                        arrivalDate = p.arrivalDate,
+                        tripId = p.tripId,
+                        previewPhotoPath = p.previewPhoto
                     )
                 }
             }
